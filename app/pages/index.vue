@@ -1,26 +1,80 @@
 <script setup lang="ts">
-import UButton from '@nuxt/ui/components/Button.vue'
+import type { Difficulty } from '#shared/sudoku/types'
+import UIcon from '@nuxt/ui/components/Icon.vue'
+import { onMounted, ref } from 'vue'
+import { NuxtLink } from '#components'
 import { useHead } from '#imports'
-import AppearancePicker from '../components/AppearancePicker.vue'
+import { DIFFICULTIES } from '#shared/sudoku/constants'
 import TallyWordmark from '../components/TallyWordmark.vue'
+import { DIFFICULTY_NAMES } from '../constants/sudoku'
+import { loadProgress, solvedNumbers, unfinished } from '../utils/progress'
+import { formatTime } from '../utils/time'
 
 useHead({ title: 'Tally' })
+
+interface LevelState {
+  playing: string | null
+  solved: number
+}
+
+// Progress lives in this browser, so the server renders the list plain and it fills in on arrival.
+const levels = ref<Partial<Record<Difficulty, LevelState>>>({})
+
+onMounted(() => {
+  levels.value = Object.fromEntries(DIFFICULTIES.map((d) => {
+    const open = unfinished(d)
+    const progress = open ? loadProgress(d, open) : null
+    return [d, { playing: progress ? formatTime(progress.elapsedMs) : null, solved: solvedNumbers(d).size }]
+  }))
+})
 </script>
 
 <template>
-  <main class="mx-auto flex min-h-dvh max-w-md flex-col px-4 pt-6 pb-8">
-    <header class="mb-7 flex h-9 items-center">
+  <main class="flex min-h-[calc(100dvh-2.5rem)] flex-col">
+    <header class="mb-7 flex h-9 items-center justify-between">
       <TallyWordmark />
+      <NuxtLink to="/settings" class="grid size-10 place-items-center" aria-label="Settings">
+        <UIcon name="i-ph-gear-six" class="size-5.5" />
+      </NuxtLink>
     </header>
-    <h1 class="mb-2 text-[32px] leading-tight font-normal tracking-[-0.015em]">
-      Evening.
+
+    <h1 class="mb-5 text-[32px] leading-tight font-normal tracking-[-0.015em]">
+      What'll it be?
     </h1>
-    <p class="mb-7 text-[17px] text-muted">
-      Sudoku is on its way. Pick your colors while you wait.
-    </p>
-    <AppearancePicker />
-    <UButton size="xl" block class="mt-8 font-sans text-[17px]" disabled>
-      Daily Sudoku
-    </UButton>
+
+    <section class="rounded-[10px] border border-default bg-surface p-4.5" aria-labelledby="sudoku-title">
+      <div class="mb-2 flex items-baseline justify-between">
+        <h2 id="sudoku-title" class="text-[22px] font-semibold">
+          Sudoku
+        </h2>
+        <UIcon name="i-ph-grid-nine" class="size-5.5 text-muted" />
+      </div>
+      <ul class="grid">
+        <li v-for="d in DIFFICULTIES" :key="d">
+          <NuxtLink :to="`/sudoku/${d}`" class="grid h-12 grid-cols-[1fr_auto_22px] items-center gap-2.5 text-[17px]">
+            <span :class="{ 'font-semibold': levels[d]?.playing }">{{ DIFFICULTY_NAMES[d] }}</span>
+            <span v-if="levels[d]?.playing" class="font-mono text-sm">{{ levels[d]!.playing }}</span>
+            <span v-else-if="levels[d]?.solved" class="text-sm text-muted">{{ levels[d]!.solved }} solved</span>
+            <span v-else class="text-sm text-muted">New</span>
+            <UIcon :name="levels[d]?.playing ? 'i-ph-play-circle' : 'i-ph-caret-right'" class="size-4.5 justify-self-end text-user" />
+          </NuxtLink>
+        </li>
+      </ul>
+    </section>
+
+    <div class="mt-6 grid grid-cols-[40px_1fr] items-center gap-3 px-0.5 opacity-75">
+      <span class="grid size-10 place-items-center rounded-lg border border-default bg-surface">
+        <UIcon name="i-ph-hourglass-simple" class="size-5" />
+      </span>
+      <p class="leading-tight">
+        <b class="block text-lg font-medium">More games soon</b>
+        <span class="text-sm text-muted">The next one is being built.</span>
+      </p>
+    </div>
+
+    <footer class="mt-auto grid gap-1.5 px-0.5 pt-10 text-sm text-muted">
+      <p>Built for a café table.</p>
+      <p>Crafted by <a href="https://vitex.dev" class="text-default underline underline-offset-3">Vitex</a></p>
+    </footer>
   </main>
 </template>
