@@ -1,0 +1,10 @@
+{
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "prettier.enable": false,
+  "eslint.useFlatConfig": true,
+  "files.associations": {
+    "*.css": "tailwindcss"
+  }
+}
