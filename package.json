@@ -10,22 +10,28 @@
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
     "fix": "eslint . --fix",
-    "typecheck": "nuxt typecheck",
+    "typecheck": "nuxt typecheck && tsc --noEmit -p server/tsconfig.json",
     "types": "wrangler types",
     "test": "vitest run",
     "test:watch": "vitest",
-    "bank": "node scripts/generate-bank.ts"
+    "bank": "node scripts/generate-bank.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate:local": "wrangler d1 migrations apply tally-db --local",
+    "db:migrate": "wrangler d1 migrations apply tally-db --remote"
   },
   "dependencies": {
     "@nuxt/ui": "^4.11.2",
+    "drizzle-orm": "^0.45.3",
     "nuxt": "^4.5.2",
     "tailwindcss": "^4.3.3",
     "vue": "^3.5.43",
-    "vue-router": "^5.3.1"
+    "vue-router": "^5.3.1",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^9.5.1",
     "@iconify-json/ph": "^1.2.2",
+    "drizzle-kit": "^0.31.11",
     "eslint": "^10.11.0",
     "eslint-plugin-format": "^2.0.1",
     "h3": "1.15.11",

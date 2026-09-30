@@ -52,6 +52,17 @@ export default defineNuxtConfig({
     imports: false,
   },
 
+  runtimeConfig: {
+    /** Seals the session cookie; rotating it signs everyone out. */
+    sessionPassword: '',
+    /** Keys the email hashes accounts are found by. Never rotate it: every account would become unreachable. */
+    emailHashKey: '',
+    turnstileSecretKey: '',
+    public: {
+      turnstileSiteKey: '',
+    },
+  },
+
   routeRules: {
     '/**': {
       headers: {
