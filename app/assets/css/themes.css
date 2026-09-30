@@ -1,7 +1,6 @@
 /* Four color sets, each in light, dark and OLED. System follows the OS between light and dark, never OLED. */
 
 /* Steel */
-:root:not([data-colors]),
 :root[data-colors='steel'] {
   --bg: #e8eaec;
   --surface: #f5f6f7;
@@ -61,6 +60,7 @@
   --error: #c0392b;
   color-scheme: light;
 }
+:root:not([data-colors]),
 :root[data-colors='moonlight'][data-mode='dark'] {
   --bg: #0c1220;
   --surface: #111a2b;
