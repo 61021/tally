@@ -92,10 +92,13 @@ function label(cell: number): string {
 </template>
 
 <style scoped>
+/* The moon waits below the board before the finish; clipping it keeps the page from scrolling. */
 .board-wrap {
   position: relative;
   isolation: isolate;
   container-type: inline-size;
+  overflow: clip;
+  overflow-clip-margin: 2rem;
 }
 
 .moon {
