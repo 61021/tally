@@ -13,7 +13,8 @@
     "typecheck": "nuxt typecheck",
     "types": "wrangler types",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "bank": "node scripts/generate-bank.ts"
   },
   "dependencies": {
     "@nuxt/ui": "^4.11.2",
