@@ -46,5 +46,15 @@ export default {
       upload: 'i-ph-upload-simple',
       warning: 'i-ph-warning',
     },
+    // Keycaps use the mono face: Newsreader has no ⌫, ⇧ or arrow glyphs.
+    kbd: {
+      base: 'font-mono font-normal normal-case',
+      variants: {
+        size: {
+          sm: 'h-5 min-w-[20px] text-[11px]',
+          md: 'h-6 min-w-[24px] px-1.5 text-[12px]',
+        },
+      },
+    },
   },
 }

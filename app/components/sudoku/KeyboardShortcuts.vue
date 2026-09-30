@@ -1,46 +1,81 @@
 <script setup lang="ts">
-defineProps<{ showCheck: boolean }>()
+import UIcon from '@nuxt/ui/components/Icon.vue'
+import UKbd from '@nuxt/ui/components/Kbd.vue'
+import UModal from '@nuxt/ui/components/Modal.vue'
+import { computed } from 'vue'
+
+const props = defineProps<{ showCheck: boolean }>()
+const open = defineModel<boolean>('open', { required: true })
+
+const groups = computed(() => [
+  {
+    title: 'Play',
+    rows: [
+      { label: 'Place a number', keys: ['1-9'] },
+      { label: 'Pencil a note', keys: ['shift', '1-9'] },
+      { label: 'Switch notes on or off', keys: ['N'] },
+      { label: 'Erase', keys: ['backspace'] },
+      { label: 'Move', keys: ['arrowleft', 'arrowup', 'arrowright', 'arrowdown'] },
+    ],
+  },
+  {
+    title: 'Tools',
+    rows: [
+      { label: 'Undo', keys: ['meta', 'Z'] },
+      { label: 'Redo', keys: ['meta', 'shift', 'Z'] },
+      { label: 'Hint', keys: ['H'] },
+      ...(props.showCheck ? [{ label: 'Check for mistakes', keys: ['C'] }] : []),
+      { label: 'Show this list', keys: ['?'] },
+    ],
+  },
+])
 </script>
 
 <template>
-  <section aria-labelledby="shortcuts-title">
-    <h2 id="shortcuts-title" class="mb-2 text-sm text-muted">
-      Keyboard
-    </h2>
-    <ul class="flex flex-wrap gap-x-4 gap-y-2 text-[14px] text-muted">
-      <li><kbd>1</kbd>to<kbd>9</kbd> place</li>
-      <li><kbd>Shift</kbd>+ number to pencil</li>
-      <li><kbd>N</kbd> notes</li>
-      <li><kbd>←</kbd><kbd>↑</kbd><kbd>→</kbd><kbd>↓</kbd> move</li>
-      <li><kbd>⌫</kbd> erase</li>
-      <li><kbd>Ctrl</kbd><kbd>Z</kbd> undo</li>
-      <li><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>Z</kbd> redo</li>
-      <li><kbd>H</kbd> hint</li>
-      <li v-if="showCheck">
-        <kbd>C</kbd> check
-      </li>
-    </ul>
-  </section>
+  <UModal v-model:open="open" title="Keyboard shortcuts" :ui="{ content: 'max-w-md' }">
+    <button type="button" class="trigger mt-5 items-center gap-2 rounded-lg py-1.5 text-[14px] text-muted">
+      <UIcon name="i-ph-keyboard" class="size-4.5" />
+      Keyboard shortcuts
+      <UKbd value="?" />
+    </button>
+
+    <template #body>
+      <div class="grid gap-6">
+        <section v-for="group in groups" :key="group.title">
+          <h3 class="mb-2.5 text-sm text-muted">
+            {{ group.title }}
+          </h3>
+          <dl class="grid gap-2.5">
+            <div v-for="row in group.rows" :key="row.label" class="flex items-center justify-between gap-4 text-[15px]">
+              <dt>{{ row.label }}</dt>
+              <dd class="flex gap-1">
+                <UKbd v-for="key in row.keys" :key="key" :value="key" />
+              </dd>
+            </div>
+          </dl>
+        </section>
+      </div>
+    </template>
+  </UModal>
 </template>
 
 <style scoped>
-li {
-  white-space: nowrap;
+.trigger {
+  display: none;
 }
 
-kbd {
-  display: inline-grid;
-  place-items: center;
-  min-width: 22px;
-  height: 22px;
-  margin: 0 1px;
-  padding: 0 5px;
-  border: 1px solid var(--line);
-  border-bottom-width: 2px;
-  border-radius: 5px;
-  background: var(--surface);
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--ink);
+/* Only offered where there's a real keyboard and room for the side panel. */
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  .trigger {
+    display: flex;
+  }
+
+  .trigger:hover {
+    color: var(--ink);
+  }
+}
+
+.trigger:focus-visible {
+  outline: 2px solid var(--user);
 }
 </style>

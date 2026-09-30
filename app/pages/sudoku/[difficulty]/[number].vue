@@ -39,6 +39,7 @@ const { status, game, elapsedMs, hint, place, note, erase, undo, redo, check, as
 
 const selected = ref<number | null>(null)
 const notesMode = ref(false)
+const shortcutsOpen = ref(false)
 
 const sameDigit = computed(() => {
   if (!settings.value.highlightSame || selected.value === null || !game.value)
@@ -99,6 +100,13 @@ const ARROWS: Record<string, [number, number]> = { ArrowUp: [-1, 0], ArrowDown: 
 
 function onKey(event: KeyboardEvent): void {
   if (status.value !== 'ready' || event.altKey || (event.target as HTMLElement | null)?.closest('input, textarea, select'))
+    return
+  if (event.key === '?') {
+    event.preventDefault()
+    shortcutsOpen.value = !shortcutsOpen.value
+    return
+  }
+  if (shortcutsOpen.value)
     return
   const mod = event.ctrlKey || event.metaKey
   const key = event.key.toLowerCase()
@@ -202,7 +210,7 @@ onUnmounted(() => removeEventListener('keydown', onKey))
               @hint="hintAndFollow"
             />
             <NumberPad :remaining="remaining" :notes-mode="notesMode" :disabled="selected === null" @digit="input" />
-            <KeyboardShortcuts class="mt-6 hidden lg:block" :show-check="settings.mistakes === 'request'" />
+            <KeyboardShortcuts v-model:open="shortcutsOpen" :show-check="settings.mistakes === 'request'" />
           </template>
         </template>
 

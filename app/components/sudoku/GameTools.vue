@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import UIcon from '@nuxt/ui/components/Icon.vue'
+import UTooltip from '@nuxt/ui/components/Tooltip.vue'
 
 defineProps<{
   notesMode: boolean
@@ -13,24 +14,36 @@ const emit = defineEmits<{ undo: [], redo: [], erase: [], notes: [], check: [], 
 
 <template>
   <div class="tools">
-    <button type="button" class="tool" :disabled="!canUndo" aria-keyshortcuts="Control+Z" @click="emit('undo')">
-      <UIcon name="i-ph-arrow-counter-clockwise" /> Undo
-    </button>
-    <button type="button" class="tool" :disabled="!canRedo" aria-keyshortcuts="Control+Shift+Z" @click="emit('redo')">
-      <UIcon name="i-ph-arrow-clockwise" /> Redo
-    </button>
-    <button type="button" class="tool" aria-keyshortcuts="Backspace" @click="emit('erase')">
-      <UIcon name="i-ph-eraser" /> Erase
-    </button>
-    <button type="button" class="tool" :class="{ on: notesMode }" :aria-pressed="notesMode" aria-keyshortcuts="N" @click="emit('notes')">
-      <UIcon :name="notesMode ? 'i-ph-pencil-simple-fill' : 'i-ph-pencil-simple'" /> Notes
-    </button>
-    <button v-if="showCheck" type="button" class="tool" aria-keyshortcuts="C" @click="emit('check')">
-      <UIcon name="i-ph-check-circle" /> Check
-    </button>
-    <button type="button" class="tool" aria-keyshortcuts="H" @click="emit('hint')">
-      <UIcon name="i-ph-lightbulb" /> Hint
-    </button>
+    <UTooltip :kbds="['meta', 'Z']">
+      <button type="button" class="tool" :disabled="!canUndo" aria-keyshortcuts="Control+Z" @click="emit('undo')">
+        <UIcon name="i-ph-arrow-counter-clockwise" /> Undo
+      </button>
+    </UTooltip>
+    <UTooltip :kbds="['meta', 'shift', 'Z']">
+      <button type="button" class="tool" :disabled="!canRedo" aria-keyshortcuts="Control+Shift+Z" @click="emit('redo')">
+        <UIcon name="i-ph-arrow-clockwise" /> Redo
+      </button>
+    </UTooltip>
+    <UTooltip :kbds="['backspace']">
+      <button type="button" class="tool" aria-keyshortcuts="Backspace" @click="emit('erase')">
+        <UIcon name="i-ph-eraser" /> Erase
+      </button>
+    </UTooltip>
+    <UTooltip :kbds="['N']">
+      <button type="button" class="tool" :class="{ on: notesMode }" :aria-pressed="notesMode" aria-keyshortcuts="N" @click="emit('notes')">
+        <UIcon :name="notesMode ? 'i-ph-pencil-simple-fill' : 'i-ph-pencil-simple'" /> Notes
+      </button>
+    </UTooltip>
+    <UTooltip v-if="showCheck" :kbds="['C']">
+      <button type="button" class="tool" aria-keyshortcuts="C" @click="emit('check')">
+        <UIcon name="i-ph-check-circle" /> Check
+      </button>
+    </UTooltip>
+    <UTooltip :kbds="['H']">
+      <button type="button" class="tool" aria-keyshortcuts="H" @click="emit('hint')">
+        <UIcon name="i-ph-lightbulb" /> Hint
+      </button>
+    </UTooltip>
   </div>
 </template>
 
