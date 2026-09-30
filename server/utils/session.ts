@@ -1,4 +1,5 @@
 import type { H3Event } from 'h3'
+import type { SessionUser } from '#shared/account/types'
 import type { Db } from '../db/client'
 import type { users } from '../db/schema'
 import { eq } from 'drizzle-orm'
@@ -6,11 +7,6 @@ import { useSession } from 'h3'
 import { useRuntimeConfig } from 'nitropack/runtime'
 import { users as usersTable } from '../db/schema'
 import { DomainError } from './errors'
-
-export interface SessionUser {
-  id: string
-  username: string
-}
 
 export interface TallySession {
   user?: SessionUser

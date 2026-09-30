@@ -1,3 +1,4 @@
+import type { PublicUser } from '#shared/account/types'
 import type { Db } from '../db/client'
 import type { users } from '../db/schema'
 import { eq } from 'drizzle-orm'
@@ -7,14 +8,6 @@ import { newId } from '../utils/crypto'
 import { DomainError } from '../utils/errors'
 
 export type UserRow = typeof users.$inferSelect
-
-export interface PublicUser {
-  id: string
-  username: string
-  createdAt: number
-  /** When the username may change again; null means now. */
-  renameAvailableAt: number | null
-}
 
 export function toPublicUser(row: UserRow): PublicUser {
   return { id: row.id, username: row.username, createdAt: row.createdAt, renameAvailableAt: nextRenameAt(row.usernameChangedAt) }
