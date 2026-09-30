@@ -23,6 +23,9 @@
   --line: color-mix(in srgb, var(--surface) 86%, var(--ink));
   --peer: color-mix(in srgb, var(--surface) 94%, var(--ink));
   --soft: color-mix(in srgb, var(--accent) 16%, transparent);
+  --peer-band: color-mix(in oklab, var(--ink) 4%, var(--surface));
+  --cell-hover: color-mix(in oklab, var(--ink) 6%, var(--surface));
+  --same-digit: color-mix(in oklab, var(--ink) 10%, var(--surface));
   --cell-line: color-mix(in srgb, var(--surface) 95%, var(--ink));
   --box-line: color-mix(in srgb, var(--surface) 84%, var(--ink));
 

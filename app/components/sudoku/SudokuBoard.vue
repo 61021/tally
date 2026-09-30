@@ -37,6 +37,12 @@ watch(() => props.selected, async (cell) => {
   board.value.querySelector<HTMLElement>(`[data-cell="${cell}"]`)?.focus()
 })
 
+// A mouse press selects at once; touch waits for the tap so a scroll over the board doesn't move the selection.
+function onPress(event: PointerEvent, cell: number): void {
+  if (event.pointerType === 'mouse')
+    emit('select', cell)
+}
+
 function label(cell: number): string {
   const v = props.values[cell]
   const where = `Row ${rowOf(cell) + 1}, column ${columnOf(cell) + 1}`
@@ -71,6 +77,7 @@ function label(cell: number): string {
           :aria-label="label(cell)"
           :aria-pressed="cell === selected"
           :data-cell="cell"
+          @pointerdown="onPress($event, cell)"
           @click="emit('select', cell)"
           @focus="emit('select', cell)"
         >
@@ -141,6 +148,9 @@ function label(cell: number): string {
   line-height: 1;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color 90ms ease-out,
+    color 90ms ease-out;
 }
 
 .cell:focus-visible {
@@ -151,6 +161,7 @@ function label(cell: number): string {
   position: relative;
   z-index: 1;
   font-weight: 300;
+  transition: color 90ms ease-out;
 }
 
 .given .d {
@@ -162,50 +173,48 @@ function label(cell: number): string {
 }
 
 .peer {
-  background: var(--peer);
+  background: var(--peer-band);
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .cell:not(.sel):hover::before {
-    content: '';
-    position: absolute;
-    inset: 12%;
-    border-radius: 50%;
-    box-shadow: inset 0 0 0 1px var(--line);
-  }
+.same {
+  background: var(--same-digit);
 }
 
 .lit {
   background: var(--soft);
 }
 
+@media (hover: hover) and (pointer: fine) {
+  .cell:not(.sel, .same):hover {
+    background: var(--cell-hover);
+  }
+}
+
+.sel {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
 .err .d {
   color: var(--error);
-  text-decoration: underline wavy var(--error) 1px;
+  text-decoration: underline wavy 1px;
   text-underline-offset: 4px;
 }
 
-.sel::before,
-.same::before,
+.sel .d,
+.sel .notes {
+  color: var(--on-accent);
+}
+
 .target::after {
   content: '';
   position: absolute;
-  inset: 12%;
-  border-radius: 50%;
+  inset: 0;
+  box-shadow: inset 0 0 0 2px var(--user);
 }
 
-.sel::before {
-  background: var(--soft);
-  box-shadow: inset 0 0 0 1px var(--user);
-  animation: rise 0.24s ease-out;
-}
-
-.same::before {
-  background: var(--soft);
-}
-
-.target::after {
-  box-shadow: inset 0 0 0 1.5px var(--user);
+.sel.target::after {
+  box-shadow: inset 0 0 0 2px var(--on-accent);
 }
 
 .notes {
@@ -217,18 +226,12 @@ function label(cell: number): string {
   grid-template-rows: repeat(3, 1fr);
   font-size: clamp(8px, 1.9cqw, 13px);
   color: var(--muted);
+  transition: color 90ms ease-out;
 }
 
 .notes span {
   display: grid;
   place-items: center;
-}
-
-@keyframes rise {
-  from {
-    transform: translateY(20%);
-    opacity: 0;
-  }
 }
 
 /* The finish: the board thins out and a moon rises behind it, the digits brightening from the bottom row up. */
