@@ -201,8 +201,6 @@ function label(cell: number): string {
 
 .err .d {
   color: var(--error);
-  text-decoration: underline wavy 1px;
-  text-underline-offset: 4px;
 }
 
 .sel .d,
