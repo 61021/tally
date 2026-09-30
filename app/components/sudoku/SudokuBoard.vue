@@ -88,6 +88,7 @@ function label(cell: number): string {
 .board-wrap {
   position: relative;
   isolation: isolate;
+  container-type: inline-size;
 }
 
 .moon {
@@ -135,7 +136,8 @@ function label(cell: number): string {
   background: var(--surface);
   color: var(--ink);
   font-family: var(--font-mono);
-  font-size: clamp(17px, 5.6vw, 23px);
+  /* Sized from the board's own width, so digits grow with it on a laptop and stay put on a phone. */
+  font-size: clamp(17px, 5cqw, 34px);
   line-height: 1;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
@@ -161,6 +163,16 @@ function label(cell: number): string {
 
 .peer {
   background: var(--peer);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .cell:not(.sel):hover::before {
+    content: '';
+    position: absolute;
+    inset: 12%;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
 }
 
 .lit {
@@ -203,7 +215,7 @@ function label(cell: number): string {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
-  font-size: clamp(8px, 2.5vw, 10px);
+  font-size: clamp(8px, 1.9cqw, 13px);
   color: var(--muted);
 }
 

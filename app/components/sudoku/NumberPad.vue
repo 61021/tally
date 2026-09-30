@@ -72,6 +72,30 @@ const DIGITS = [1, 2, 3, 4, 5, 6, 7, 8, 9]
   color: var(--muted);
 }
 
+@media (hover: hover) and (pointer: fine) {
+  .key:not(:disabled):hover {
+    background: var(--peer);
+  }
+}
+
+/* On a laptop the pad sits beside the board as a 3 by 3 keypad, like a calculator. */
+@media (min-width: 1024px) {
+  .pad {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .key {
+    height: 62px;
+    font-size: 28px;
+    border-radius: 10px;
+  }
+
+  .key small {
+    font-size: 11px;
+  }
+}
+
 .key:focus-visible {
   outline: 2px solid var(--user);
   outline-offset: 1px;

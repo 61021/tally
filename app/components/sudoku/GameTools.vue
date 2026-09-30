@@ -75,4 +75,18 @@ const emit = defineEmits<{ undo: [], redo: [], erase: [], notes: [], check: [], 
 .tool:focus-visible {
   outline: 2px solid var(--user);
 }
+
+@media (hover: hover) and (pointer: fine) {
+  .tool:not(:disabled):hover {
+    background: var(--peer);
+    color: var(--ink);
+  }
+}
+
+@media (min-width: 1024px) {
+  .tool {
+    padding: 10px 0;
+    font-size: 15px;
+  }
+}
 </style>

@@ -10,6 +10,7 @@ import { isGiven, remainingDigits, wrongCells } from '#shared/sudoku/game'
 import { findConflicts } from '#shared/sudoku/grid'
 import GameTools from '../../../components/sudoku/GameTools.vue'
 import HintBar from '../../../components/sudoku/HintBar.vue'
+import KeyboardShortcuts from '../../../components/sudoku/KeyboardShortcuts.vue'
 import NumberPad from '../../../components/sudoku/NumberPad.vue'
 import SudokuBoard from '../../../components/sudoku/SudokuBoard.vue'
 import SudokuSolved from '../../../components/sudoku/SudokuSolved.vue'
@@ -140,8 +141,8 @@ onUnmounted(() => removeEventListener('keydown', onKey))
 </script>
 
 <template>
-  <main class="flex min-h-[calc(100dvh-2.5rem)] flex-col">
-    <header class="mb-4 grid grid-cols-[40px_1fr_auto_40px] items-center">
+  <main class="mx-auto flex min-h-[calc(100dvh-2.5rem)] max-w-md flex-col md:max-w-xl lg:min-h-0 lg:max-w-none">
+    <header class="mb-4 grid grid-cols-[40px_1fr_auto_40px] items-center lg:hidden">
       <NuxtLink to="/" class="grid size-10 place-items-center" aria-label="Back to Tally">
         <UIcon name="i-ph-caret-left" class="size-5.5" />
       </NuxtLink>
@@ -156,51 +157,77 @@ onUnmounted(() => removeEventListener('keydown', onKey))
       </NuxtLink>
     </header>
 
-    <template v-if="status === 'ready' && game">
-      <SudokuBoard
-        :values="game.values"
-        :puzzle="game.puzzle"
-        :notes="game.notes"
-        :selected="selected"
-        :same-digit="sameDigit"
-        :errors="errors"
-        :highlight="highlight"
-        :target="hint && hint.level > 1 ? hint.target : null"
-        :solved="game.completed"
-        @select="select"
-      />
-      <SudokuSolved v-if="game.completed" :difficulty="difficulty" :elapsed-ms="elapsedMs" :checks="game.checks" :hints="game.hints" />
-      <template v-else>
-        <HintBar :text="hint?.text ?? null" />
-        <GameTools
-          class="mt-1 mb-3.5"
-          :notes-mode="notesMode"
-          :can-undo="game.past.length > 0"
-          :can-redo="game.future.length > 0"
-          :show-check="settings.mistakes === 'request'"
-          @undo="undo"
-          @redo="redo"
-          @erase="eraseSelected"
-          @notes="notesMode = !notesMode"
-          @check="check"
-          @hint="hintAndFollow"
+    <div class="play lg:flex lg:items-start lg:justify-center lg:gap-12">
+      <div class="board-col w-full">
+        <SudokuBoard
+          v-if="status === 'ready' && game"
+          :values="game.values"
+          :puzzle="game.puzzle"
+          :notes="game.notes"
+          :selected="selected"
+          :same-digit="sameDigit"
+          :errors="errors"
+          :highlight="highlight"
+          :target="hint && hint.level > 1 ? hint.target : null"
+          :solved="game.completed"
+          @select="select"
         />
-        <NumberPad :remaining="remaining" :notes-mode="notesMode" :disabled="selected === null" @digit="input" />
-      </template>
-    </template>
+        <div v-else-if="status === 'loading'" class="aspect-square w-full animate-pulse rounded-[10px] border border-default bg-surface" aria-label="Loading the puzzle" />
+      </div>
 
-    <div v-else-if="status === 'loading'" class="aspect-square w-full animate-pulse rounded-[10px] border border-default bg-surface" aria-label="Loading the puzzle" />
+      <aside class="w-full lg:w-[340px] lg:shrink-0">
+        <div class="mb-2 hidden items-end justify-between lg:flex">
+          <h1 class="text-[34px] leading-none font-normal tracking-[-0.015em]">
+            {{ name }}
+            <span class="mt-2 block text-[15px] tracking-normal text-muted">Puzzle {{ number }}</span>
+          </h1>
+          <span v-if="settings.showTimer && !game?.completed" class="font-mono text-[28px] leading-none font-light" aria-label="Time">{{ formatTime(elapsedMs) }}</span>
+        </div>
 
-    <section v-else class="grid gap-4 pt-8">
-      <p class="text-[17px]">
-        {{ status === 'missing' ? `There's no ${name.toLowerCase()} puzzle ${number}.` : 'The puzzle didn\'t load. Check your connection and try again.' }}
-      </p>
-      <UButton v-if="status === 'error'" size="xl" block class="font-sans text-[17px]" @click="retry">
-        Try again
-      </UButton>
-      <UButton to="/" size="xl" block variant="outline" color="neutral" class="font-sans text-[17px]">
-        Back to Tally
-      </UButton>
-    </section>
+        <template v-if="status === 'ready' && game">
+          <SudokuSolved v-if="game.completed" :difficulty="difficulty" :elapsed-ms="elapsedMs" :checks="game.checks" :hints="game.hints" />
+          <template v-else>
+            <HintBar :text="hint?.text ?? null" />
+            <GameTools
+              class="mt-1 mb-3.5"
+              :notes-mode="notesMode"
+              :can-undo="game.past.length > 0"
+              :can-redo="game.future.length > 0"
+              :show-check="settings.mistakes === 'request'"
+              @undo="undo"
+              @redo="redo"
+              @erase="eraseSelected"
+              @notes="notesMode = !notesMode"
+              @check="check"
+              @hint="hintAndFollow"
+            />
+            <NumberPad :remaining="remaining" :notes-mode="notesMode" :disabled="selected === null" @digit="input" />
+            <KeyboardShortcuts class="mt-6 hidden lg:block" :show-check="settings.mistakes === 'request'" />
+          </template>
+        </template>
+
+        <section v-else-if="status !== 'loading'" class="grid gap-4 pt-8 lg:pt-4">
+          <p class="text-[17px]">
+            {{ status === 'missing' ? `There's no ${name.toLowerCase()} puzzle ${number}.` : 'The puzzle didn\'t load. Check your connection and try again.' }}
+          </p>
+          <UButton v-if="status === 'error'" size="xl" block class="font-sans text-[17px]" @click="retry">
+            Try again
+          </UButton>
+          <UButton to="/" size="xl" block variant="outline" color="neutral" class="font-sans text-[17px]">
+            Back to Tally
+          </UButton>
+        </section>
+      </aside>
+    </div>
   </main>
 </template>
+
+<style scoped>
+/* On a laptop the board fills the height left under the top bar, up to 760px. */
+@media (min-width: 1024px) {
+  .board-col {
+    width: clamp(420px, calc(100dvh - 9rem), 760px);
+    flex: none;
+  }
+}
+</style>
