@@ -1,2 +1,60 @@
 @import 'tailwindcss';
 @import '@nuxt/ui';
+@import './themes.css';
+
+@theme {
+  --font-sans: 'Newsreader', ui-serif, Georgia, serif;
+  --font-mono: 'Geist Mono', ui-monospace, monospace;
+}
+
+@theme inline {
+  --color-page: var(--bg);
+  --color-surface: var(--surface);
+  --color-user: var(--user);
+  --color-on-accent: var(--on-accent);
+  --color-peer: var(--peer);
+  --color-soft: var(--soft);
+  --color-cell-line: var(--cell-line);
+  --color-box-line: var(--box-line);
+}
+
+/* Derived from the color set; the grid lines are the "whisper" treatment picked in the tasting. */
+:root {
+  --line: color-mix(in srgb, var(--surface) 86%, var(--ink));
+  --peer: color-mix(in srgb, var(--surface) 94%, var(--ink));
+  --soft: color-mix(in srgb, var(--accent) 16%, transparent);
+  --cell-line: color-mix(in srgb, var(--surface) 95%, var(--ink));
+  --box-line: color-mix(in srgb, var(--surface) 84%, var(--ink));
+
+  --ui-bg: var(--bg);
+  --ui-bg-muted: var(--surface);
+  --ui-bg-elevated: var(--surface);
+  --ui-bg-accented: var(--peer);
+  --ui-bg-inverted: var(--ink);
+  --ui-text: var(--ink);
+  --ui-text-highlighted: var(--ink);
+  --ui-text-toned: var(--muted);
+  --ui-text-muted: var(--muted);
+  --ui-text-dimmed: var(--muted);
+  --ui-text-inverted: var(--on-accent);
+  --ui-border: var(--line);
+  --ui-border-muted: var(--line);
+  --ui-border-accented: var(--box-line);
+  --ui-border-inverted: var(--ink);
+  --ui-primary: var(--accent);
+  --ui-error: var(--error);
+  --ui-radius: 0.5rem;
+}
+
+html {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  min-height: 100dvh;
+}
