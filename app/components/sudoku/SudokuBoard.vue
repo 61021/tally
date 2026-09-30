@@ -191,8 +191,12 @@ function label(cell: number): string {
 }
 
 .sel {
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--ink);
+  color: var(--surface);
+}
+
+.sel.err {
+  background: var(--error);
 }
 
 .err .d {
@@ -203,7 +207,7 @@ function label(cell: number): string {
 
 .sel .d,
 .sel .notes {
-  color: var(--on-accent);
+  color: var(--surface);
 }
 
 .target::after {
@@ -214,7 +218,7 @@ function label(cell: number): string {
 }
 
 .sel.target::after {
-  box-shadow: inset 0 0 0 2px var(--on-accent);
+  box-shadow: inset 0 0 0 2px var(--surface);
 }
 
 .notes {
