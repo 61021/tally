@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import type { Difficulty } from '#shared/sudoku/types'
+import UButton from '@nuxt/ui/components/Button.vue'
 import UIcon from '@nuxt/ui/components/Icon.vue'
 import { onMounted, ref } from 'vue'
 import { NuxtLink } from '#components'
 import { useHead } from '#imports'
 import { DIFFICULTIES } from '#shared/sudoku/constants'
 import TallyWordmark from '../components/TallyWordmark.vue'
+import { useAccount } from '../composables/useAccount'
 import { DIFFICULTY_NAMES } from '../constants/sudoku'
 import { loadProgress, solvedNumbers, unfinished } from '../utils/progress'
 import { formatTime } from '../utils/time'
 
 useHead({ title: 'Tally' })
+
+const { user } = useAccount()
 
 interface LevelState {
   playing: string | null
@@ -33,13 +37,21 @@ onMounted(() => {
   <main class="flex min-h-[calc(100dvh-2.5rem)] flex-col">
     <header class="mb-7 flex h-9 items-center justify-between">
       <TallyWordmark />
-      <NuxtLink to="/settings" class="grid size-10 place-items-center" aria-label="Settings">
-        <UIcon name="i-ph-gear-six" class="size-5.5" />
-      </NuxtLink>
+      <div class="flex items-center gap-1">
+        <NuxtLink to="/settings" class="grid size-10 place-items-center" aria-label="Settings">
+          <UIcon name="i-ph-gear-six" class="size-5.5" />
+        </NuxtLink>
+        <NuxtLink v-if="user" to="/account" class="grid size-9 place-items-center rounded-full border border-default bg-surface text-[15px]" :aria-label="`Account: ${user.username}`">
+          {{ user.username[0]!.toUpperCase() }}
+        </NuxtLink>
+        <NuxtLink v-else to="/signin" class="px-2 text-[16px] underline underline-offset-3">
+          Sign in
+        </NuxtLink>
+      </div>
     </header>
 
     <h1 class="mb-5 text-[32px] leading-tight font-normal tracking-[-0.015em]">
-      What'll it be?
+      {{ user ? `What'll it be, ${user.username}?` : 'What\'ll it be?' }}
     </h1>
 
     <section class="rounded-[10px] border border-default bg-surface p-4.5" aria-labelledby="sudoku-title">
@@ -60,6 +72,16 @@ onMounted(() => {
           </NuxtLink>
         </li>
       </ul>
+    </section>
+
+    <section v-if="!user" class="mt-4 rounded-[10px] border border-default bg-surface p-4.5">
+      <p class="text-[16px] leading-snug">
+        <b class="font-medium">Make yourself at home.</b>{{ ' ' }}
+        <span class="text-muted">Pick a username and Tally will know you next time.</span>
+      </p>
+      <UButton to="/signin" size="lg" block variant="outline" color="neutral" class="mt-3 font-sans text-[16px]">
+        Make an account
+      </UButton>
     </section>
 
     <div class="mt-6 grid grid-cols-[40px_1fr] items-center gap-3 px-0.5 opacity-75">
