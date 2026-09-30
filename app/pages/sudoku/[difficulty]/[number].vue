@@ -20,6 +20,7 @@ import { BANK_SIZE, DIFFICULTY_NAMES } from '../../../constants/sudoku'
 import { formatTime } from '../../../utils/time'
 
 definePageMeta({
+  layout: 'play',
   key: route => route.fullPath,
   validate: (route) => {
     const n = Number(route.params.number)
@@ -231,10 +232,10 @@ onUnmounted(() => removeEventListener('keydown', onKey))
 </template>
 
 <style scoped>
-/* On a laptop the board fills the height left under the top bar, up to 760px. */
+/* Beside the sidebar the board takes the full height, or the width the 88px rail and 340px panel leave (540px with padding and gap). */
 @media (min-width: 1024px) {
   .board-col {
-    width: clamp(420px, calc(100dvh - 9rem), 760px);
+    width: clamp(420px, min(100dvh - 4rem, 100vw - 540px), 960px);
     flex: none;
   }
 }

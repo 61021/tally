@@ -144,7 +144,7 @@ function label(cell: number): string {
   color: var(--ink);
   font-family: var(--font-mono);
   /* Sized from the board's own width, so digits grow with it on a laptop and stay put on a phone. */
-  font-size: clamp(17px, 5cqw, 34px);
+  font-size: clamp(17px, 5cqw, 44px);
   line-height: 1;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
@@ -226,7 +226,7 @@ function label(cell: number): string {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
-  font-size: clamp(8px, 1.9cqw, 13px);
+  font-size: clamp(8px, 1.9cqw, 16px);
   color: var(--muted);
   transition: color 90ms ease-out;
 }
