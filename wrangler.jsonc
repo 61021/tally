@@ -34,6 +34,6 @@
   "vars": {
     "ENVIRONMENT": "production",
     "MAIL_FROM": "noreply@tally.vitex.dev",
-    "NUXT_PUBLIC_TURNSTILE_SITE_KEY": ""
+    "NUXT_PUBLIC_TURNSTILE_SITE_KEY": "0x4AAAAAAFKiGfbRHZaRDyPQ"
   }
 }
