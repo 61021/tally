@@ -130,8 +130,8 @@ watch(code, (value) => {
 </script>
 
 <template>
-  <main>
-    <header class="mb-6 grid grid-cols-[40px_1fr_40px] items-center">
+  <main class="mx-auto max-w-md lg:pt-6">
+    <header class="mb-6 grid grid-cols-[40px_1fr_40px] items-center lg:hidden">
       <NuxtLink to="/" class="grid size-10 place-items-center" aria-label="Back to Tally">
         <UIcon name="i-ph-caret-left" class="size-5.5" />
       </NuxtLink>

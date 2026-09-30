@@ -78,12 +78,12 @@ async function deleteAccount(): Promise<void> {
 </script>
 
 <template>
-  <main>
-    <header class="mb-5 grid grid-cols-[40px_1fr_40px] items-center">
-      <NuxtLink to="/" class="grid size-10 place-items-center" aria-label="Back to Tally">
+  <main class="mx-auto max-w-md">
+    <header class="mb-5 grid grid-cols-[40px_1fr_40px] items-center lg:mb-8 lg:block">
+      <NuxtLink to="/" class="grid size-10 place-items-center lg:hidden" aria-label="Back to Tally">
         <UIcon name="i-ph-caret-left" class="size-5.5" />
       </NuxtLink>
-      <h1 class="text-center text-xl font-medium">
+      <h1 class="text-center text-xl font-medium lg:text-left lg:text-[34px] lg:font-normal lg:tracking-[-0.015em]">
         Account
       </h1>
     </header>
