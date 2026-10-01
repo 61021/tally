@@ -13,6 +13,7 @@ export default defineNuxtConfig({
   fonts: {
     families: [
       { name: 'Newsreader', provider: 'google', weights: ['300 700'], styles: ['normal', 'italic'] },
+      { name: 'Geist', provider: 'google', weights: ['400 600'] },
       { name: 'Geist Mono', provider: 'google', weights: ['300 500'] },
     ],
   },

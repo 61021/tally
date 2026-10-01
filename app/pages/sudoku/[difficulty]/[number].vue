@@ -157,7 +157,7 @@ onUnmounted(() => removeEventListener('keydown', onKey))
       </NuxtLink>
       <h1 class="text-lg leading-tight font-medium">
         {{ name }}
-        <span class="block text-[13px] font-normal text-muted">Puzzle {{ number }}</span>
+        <span class="block font-sans text-[13px] font-normal text-muted">Puzzle {{ number }}</span>
       </h1>
       <span v-if="settings.showTimer" class="mr-1 font-mono text-[15px] text-muted" aria-label="Time">{{ formatTime(elapsedMs) }}</span>
       <span v-else />
@@ -188,7 +188,7 @@ onUnmounted(() => removeEventListener('keydown', onKey))
         <div class="mb-2 hidden items-end justify-between lg:flex">
           <h1 class="text-[34px] leading-none font-normal tracking-[-0.015em]">
             {{ name }}
-            <span class="mt-2 block text-[15px] tracking-normal text-muted">Puzzle {{ number }}</span>
+            <span class="mt-2 block font-sans text-[15px] tracking-normal text-muted">Puzzle {{ number }}</span>
           </h1>
           <span v-if="settings.showTimer && !game?.completed" class="font-mono text-[28px] leading-none font-light" aria-label="Time">{{ formatTime(elapsedMs) }}</span>
         </div>
@@ -216,7 +216,7 @@ onUnmounted(() => removeEventListener('keydown', onKey))
         </template>
 
         <section v-else-if="status !== 'loading'" class="grid gap-4 pt-8 lg:pt-4">
-          <p class="text-[17px]">
+          <p class="font-serif text-[17px]">
             {{ status === 'missing' ? `There's no ${name.toLowerCase()} puzzle ${number}.` : 'The puzzle didn\'t load. Check your connection and try again.' }}
           </p>
           <UButton v-if="status === 'error'" size="xl" block class="font-sans text-[17px]" @click="retry">

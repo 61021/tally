@@ -142,7 +142,7 @@ watch(code, (value) => {
         <h1 class="text-[32px] leading-tight font-normal tracking-[-0.015em]">
           Sign in
         </h1>
-        <p class="mt-2 text-[17px] text-muted">
+        <p class="mt-2 font-serif text-[17px] text-muted">
           New here? The same steps make your account.
         </p>
       </div>
@@ -162,7 +162,7 @@ watch(code, (value) => {
         <h1 class="text-[32px] leading-tight font-normal tracking-[-0.015em]">
           Check your email
         </h1>
-        <p class="mt-2 text-[17px] text-muted">
+        <p class="mt-2 font-serif text-[17px] text-muted">
           We sent a code to <span class="text-default">{{ email }}</span>.
         </p>
       </div>
@@ -190,7 +190,7 @@ watch(code, (value) => {
         <h1 class="text-[32px] leading-tight font-normal tracking-[-0.015em]">
           Pick a username
         </h1>
-        <p class="mt-2 text-[17px] text-muted">
+        <p class="mt-2 font-serif text-[17px] text-muted">
           Letters and numbers, 3 to 20 of them. Other players see it on the daily boards.
         </p>
       </div>

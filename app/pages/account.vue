@@ -92,7 +92,7 @@ async function deleteAccount(): Promise<void> {
 
     <template v-else-if="account">
       <section class="mb-6">
-        <p class="text-[32px] leading-tight italic">
+        <p class="font-serif text-[32px] leading-tight italic">
           {{ account.username }}
         </p>
         <p class="mt-1 text-[15px] text-muted">
@@ -125,7 +125,7 @@ async function deleteAccount(): Promise<void> {
           Delete account
         </UButton>
         <div v-else class="grid gap-3 rounded-[10px] border border-default bg-surface p-4">
-          <p class="text-[16px]">
+          <p class="font-serif text-[16px]">
             This deletes your account and frees your username. Puzzles saved in this browser stay.
           </p>
           <UButton size="xl" block color="error" class="font-sans text-[17px]" :loading="busy" @click="deleteAccount">
@@ -138,7 +138,7 @@ async function deleteAccount(): Promise<void> {
       </section>
     </template>
 
-    <p v-else-if="loadError && loadError.statusCode !== 401" class="text-[17px]">
+    <p v-else-if="loadError && loadError.statusCode !== 401" class="font-serif text-[17px]">
       Your account didn't load. Check your connection and try again.
     </p>
   </main>

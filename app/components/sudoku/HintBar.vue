@@ -21,6 +21,7 @@ defineProps<{ text: string | null }>()
   min-height: 52px;
   margin: 0;
   padding: 12px 2px 0;
+  font-family: var(--font-serif);
   font-size: 16px;
   line-height: 1.35;
   color: var(--muted);

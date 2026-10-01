@@ -3,7 +3,8 @@
 @import './themes.css';
 
 @theme {
-  --font-sans: 'Newsreader', ui-serif, Georgia, serif;
+  --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Newsreader', ui-serif, Georgia, serif;
   --font-mono: 'Geist Mono', ui-monospace, monospace;
 }
 
@@ -60,4 +61,12 @@ html {
 
 body {
   min-height: 100dvh;
+}
+
+/* Newsreader sets the headings and running text; Geist everything you click or scan. */
+@layer base {
+  h1,
+  h2 {
+    font-family: var(--font-serif);
+  }
 }

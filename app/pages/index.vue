@@ -67,7 +67,7 @@ onMounted(() => {
             </h2>
             <UIcon name="i-ph-grid-nine" class="size-5.5 text-muted lg:hidden" />
           </div>
-          <p class="mb-3 hidden text-[16px] text-muted lg:block">
+          <p class="mb-3 hidden font-serif text-[16px] text-muted lg:block">
             Four levels, 2,500 puzzles each. Hints explain themselves.
           </p>
           <ul class="grid">
@@ -87,7 +87,7 @@ onMounted(() => {
 
       <div class="grid content-start gap-4">
         <section v-if="!user" class="rounded-[10px] border border-default bg-surface p-4.5 lg:p-6">
-          <p class="text-[16px] leading-snug lg:text-[17px]">
+          <p class="font-serif text-[16px] leading-snug lg:text-[17px]">
             <b class="font-medium">Make yourself at home.</b>{{ ' ' }}
             <span class="text-muted">Pick a username and Tally will know you next time.</span>
           </p>
@@ -107,7 +107,7 @@ onMounted(() => {
           <span class="grid size-10 place-items-center rounded-lg border border-default bg-surface">
             <UIcon name="i-ph-hourglass-simple" class="size-5" />
           </span>
-          <p class="leading-tight">
+          <p class="font-serif leading-tight">
             <b class="block text-lg font-medium">More games soon</b>
             <span class="text-sm text-muted">The next one is being built.</span>
           </p>
@@ -115,7 +115,7 @@ onMounted(() => {
       </div>
     </div>
 
-    <footer class="mt-auto grid gap-1.5 px-0.5 pt-10 text-sm text-muted lg:flex lg:justify-between">
+    <footer class="mt-auto grid gap-1.5 px-0.5 pt-10 font-serif text-sm text-muted lg:flex lg:justify-between">
       <p>Built for a café table.</p>
       <p>Crafted by <a href="https://vitex.dev" class="text-default underline underline-offset-3">Vitex</a></p>
     </footer>
