@@ -1,9 +1,9 @@
 # Identity
 
-Picked from rendered tastings on 30/9/2026.
+Picked from rendered tastings on 30/9/2026 and 1/10/2026.
 
 - **Name:** Tally. Wordmark set in Newsreader italic (`app/components/TallyWordmark.vue`).
-- **Type:** Newsreader for text (may change to another serif later), Geist Mono for every digit on the board, pad, timers and stats. Both self-hosted by `@nuxt/fonts`.
+- **Type:** Newsreader for the wordmark, headings and sentences (may change to another serif later). Geist for everything you click or scan: buttons, labels, settings, metadata. Geist Mono for every digit on the board, pad, timers and stats. All three self-hosted by `@nuxt/fonts`. Geist is the base face; `h1` and `h2` take Newsreader in `app/assets/css/main.css`, and a sentence opts in with `font-serif`.
 - **Colors:** four sets, Moonlight by default (in Dark mode), then Steel, Cobalt Snow, Tangerine + Ink. Tokens in `app/assets/css/themes.css`.
 - **Modes:** System, Light, Dark, OLED. System follows the OS between light and dark, never OLED. OLED puts the page on true black and the board on a near-black surface.
 - **Board:** the Moonrise grid with a solid cell background and "whisper" lines: cell lines at 5% ink, box lines at 16%, one rounded 10px frame. The selected cell fills with `--ink` (near-white on dark, near-black on light), its digit or notes knocked out in `--surface`, and turns `--error` red when its digit is wrong; cells with the same digit take a neutral fill (ink 10%), the row, column and box a faint band (ink 4%), hover ink 6%. No circles. Every change fades over 90ms. Given digits are Geist Mono 400, the player's are 300 in the set's `--user` color.
