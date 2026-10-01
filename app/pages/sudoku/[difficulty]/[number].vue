@@ -232,10 +232,10 @@ onUnmounted(() => removeEventListener('keydown', onKey))
 </template>
 
 <style scoped>
-/* Beside the sidebar the board takes the full height, or the width the 88px rail and 340px panel leave (540px with padding and gap). */
+/* Beside the sidebar the board takes the full height, or the width the 64px rail and 340px panel leave (516px with padding and gap). */
 @media (min-width: 1024px) {
   .board-col {
-    width: clamp(420px, min(100dvh - 4rem, 100vw - 540px), 960px);
+    width: clamp(420px, min(100dvh - 4rem, 100vw - 516px), 960px);
     flex: none;
   }
 }
