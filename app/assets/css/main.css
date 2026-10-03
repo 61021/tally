@@ -59,8 +59,10 @@ html {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Transparent so the scene's painting (SceneBackdrop) shows through; html keeps --bg while it loads. */
 body {
   min-height: 100dvh;
+  background: transparent;
 }
 
 /* "Ink in" page transition (app/utils/ink.ts): outlined type and empty surfaces, then ink from the top. */

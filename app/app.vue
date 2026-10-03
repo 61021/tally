@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import UApp from '@nuxt/ui/components/App.vue'
 import { useHead } from '#imports'
+import SceneBackdrop from './components/SceneBackdrop.vue'
 import { useAppearance } from './composables/useAppearance'
 
-const { appearance, colorSet } = useAppearance()
+const { appearance, scene } = useAppearance()
 
 useHead(() => {
   const { mode } = appearance.value
-  const { themeColor } = colorSet()
+  const { themeColor } = scene()
   return {
     titleTemplate: title => title || 'Tally',
-    htmlAttrs: { 'lang': 'en', 'data-colors': appearance.value.colors, 'data-mode': mode },
+    htmlAttrs: { 'lang': 'en', 'data-scene': appearance.value.scene, 'data-mode': mode },
     meta: [
       { name: 'description', content: 'Fun, brain-nourishing games in one place, starting with Sudoku.' },
       ...(mode === 'system'
@@ -26,6 +27,7 @@ useHead(() => {
 
 <template>
   <UApp>
+    <SceneBackdrop />
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>

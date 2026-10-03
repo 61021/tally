@@ -1,11 +1,38 @@
-import type { Appearance, ColorSet, Mode } from '../types/appearance'
+import type { Appearance, Mode, Scene } from '../types/appearance'
 
-export const COLOR_SETS: readonly ColorSet[] = [
-  { id: 'moonlight', name: 'Moonlight', themeColor: { light: '#e3e8ef', dark: '#0c1220', oled: '#000000' }, accent: { light: '#e5c25a', dark: '#f0d27c', oled: '#f0d27c' } },
-  { id: 'steel', name: 'Steel', themeColor: { light: '#e8eaec', dark: '#111315', oled: '#000000' }, accent: { light: '#44596f', dark: '#9fb3c8', oled: '#9fb3c8' } },
-  { id: 'cobalt', name: 'Cobalt Snow', themeColor: { light: '#edf1f7', dark: '#081026', oled: '#000000' }, accent: { light: '#0047ab', dark: '#5b8cff', oled: '#5b8cff' } },
-  { id: 'tangerine', name: 'Tangerine + Ink', themeColor: { light: '#eef0f2', dark: '#0b0f19', oled: '#000000' }, accent: { light: '#f26b1d', dark: '#ff8a3d', oled: '#ff8a3d' } },
+export const SCENES: readonly Scene[] = [
+  {
+    id: 'dusk',
+    name: 'Dusk',
+    painting: { title: 'Andersnatten', artist: 'Theodor Kittelsen', year: null, source: 'https://commons.wikimedia.org/wiki/File:Th._Kittelsen,_Andersnatten,_postkort.jpg' },
+    focus: '62% 38%',
+    themeColor: { light: '#e9e6dc', dark: '#0e1622', oled: '#000000' },
+  },
+  {
+    id: 'soria',
+    name: 'Soria Moria',
+    painting: { title: 'Soria Moria', artist: 'Theodor Kittelsen', year: '1900', source: 'https://commons.wikimedia.org/wiki/File:Theodor_Kittelsen_-_Far,_far_away_Soria_Moria_Palace_shimmered_like_Gold_-_Google_Art_Project.jpg' },
+    focus: '46% 55%',
+    themeColor: { light: '#e1e6f0', dark: '#0e1622', oled: '#000000' },
+  },
+  {
+    id: 'haystacks',
+    name: 'Haystacks',
+    painting: { title: 'Kornstaur i måneskinn', artist: 'Theodor Kittelsen', year: null, source: 'https://commons.wikimedia.org/wiki/File:Th._Kittelsen,_Kornstaur_i_m%C3%A5neskinn,_postkort.jpg' },
+    focus: '40% 45%',
+    themeColor: { light: '#dfe9e1', dark: '#0e1622', oled: '#000000' },
+  },
+  {
+    id: 'marsh',
+    name: 'Marsh',
+    painting: { title: 'The Twelve Wild Ducks', artist: 'Theodor Kittelsen', year: '1897', source: 'https://commons.wikimedia.org/wiki/File:Theodor_Kittelsen_-_The_twelve_Wild_Ducks_-_Google_Art_Project.jpg' },
+    focus: '70% 30%',
+    themeColor: { light: '#d8ece2', dark: '#0c1914', oled: '#000000' },
+  },
 ]
+
+/** Widths each painting is encoded at in public/scenes, as AVIF. */
+export const SCENE_WIDTHS: readonly number[] = [1280, 1920, 2560]
 
 export const MODES: readonly { id: Mode, name: string }[] = [
   { id: 'system', name: 'System' },
@@ -14,7 +41,7 @@ export const MODES: readonly { id: Mode, name: string }[] = [
   { id: 'oled', name: 'OLED' },
 ]
 
-export const DEFAULT_APPEARANCE: Appearance = { colors: 'moonlight', mode: 'dark' }
+export const DEFAULT_APPEARANCE: Appearance = { scene: 'soria', mode: 'dark' }
 
 export const APPEARANCE_COOKIE = 'tally-appearance'
 

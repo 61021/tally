@@ -1,194 +1,197 @@
-/* Four color sets, each in light, dark and OLED. System follows the OS between light and dark, never OLED. */
+/* Four scenes, each in light, dark and OLED. Dark grades the painting day-for-night; OLED drops it. */
 
-/* Steel */
-:root[data-colors='steel'] {
-  --bg: #e8eaec;
-  --surface: #f5f6f7;
-  --ink: #1a1d21;
-  --muted: #5d636b;
-  --accent: #44596f;
-  --on-accent: #f3f6f9;
-  --user: #3d5470;
-  --error: #b3261e;
+/* Dusk */
+:root[data-scene='dusk'] {
+  --bg: #e9e6dc;
+  --surface: #f6f4ef;
+  --ink: #2b2615;
+  --muted: #676355;
+  --accent: #dcc27b;
+  --on-accent: #2b2615;
+  --user: #43668a;
+  --error: #c13c36;
+  --scene-night: 0.72;
   color-scheme: light;
 }
-:root[data-colors='steel'][data-mode='dark'] {
-  --bg: #111315;
-  --surface: #1a1d20;
-  --ink: #e3e6ea;
-  --muted: #8c939b;
-  --accent: #9fb3c8;
-  --on-accent: #111315;
-  --user: #b4c5d6;
-  --error: #ff6b61;
+:root[data-scene='dusk'][data-mode='dark'] {
+  --bg: #0e1622;
+  --surface: #18212d;
+  --ink: #d4dfee;
+  --muted: #8b99af;
+  --accent: #dcc27b;
+  --on-accent: #0e1622;
+  --user: #93b5d8;
+  --error: #ea6b60;
   color-scheme: dark;
 }
 @media (prefers-color-scheme: dark) {
-  :root[data-colors='steel'][data-mode='system'] {
-    --bg: #111315;
-    --surface: #1a1d20;
-    --ink: #e3e6ea;
-    --muted: #8c939b;
-    --accent: #9fb3c8;
-    --on-accent: #111315;
-    --user: #b4c5d6;
-    --error: #ff6b61;
+  :root[data-scene='dusk'][data-mode='system'] {
+    --bg: #0e1622;
+    --surface: #18212d;
+    --ink: #d4dfee;
+    --muted: #8b99af;
+    --accent: #dcc27b;
+    --on-accent: #0e1622;
+    --user: #93b5d8;
+    --error: #ea6b60;
     color-scheme: dark;
   }
 }
-:root[data-colors='steel'][data-mode='oled'] {
+:root[data-scene='dusk'][data-mode='oled'] {
   --bg: #000000;
-  --surface: #0c0d0f;
-  --ink: #e3e6ea;
-  --muted: #8c939b;
-  --accent: #9fb3c8;
-  --on-accent: #0c0d0f;
-  --user: #b4c5d6;
-  --error: #ff6b61;
+  --surface: #050b15;
+  --ink: #d4dfee;
+  --muted: #8b99af;
+  --accent: #dcc27b;
+  --on-accent: #050b15;
+  --user: #93b5d8;
+  --error: #ea6b60;
   color-scheme: dark;
 }
 
-/* Moonlight */
-:root[data-colors='moonlight'] {
-  --bg: #e3e8ef;
-  --surface: #eef1f6;
-  --ink: #17213a;
-  --muted: #56617b;
-  --accent: #e5c25a;
-  --on-accent: #17213a;
-  --user: #2f4b8e;
-  --error: #c0392b;
+/* Soria Moria */
+:root[data-scene='soria'] {
+  --bg: #e1e6f0;
+  --surface: #f2f5fa;
+  --ink: #1e2736;
+  --muted: #5c6470;
+  --accent: #e8b45e;
+  --on-accent: #1e2736;
+  --user: #4c638e;
+  --error: #c13c36;
+  --scene-night: 0.66;
   color-scheme: light;
 }
-:root:not([data-colors]),
-:root[data-colors='moonlight'][data-mode='dark'] {
-  --bg: #0c1220;
-  --surface: #111a2b;
-  --ink: #e8e4d4;
-  --muted: #7c88a2;
-  --accent: #f0d27c;
-  --on-accent: #1a1608;
-  --user: #f0d27c;
-  --error: #ff8a78;
+:root[data-scene='soria'][data-mode='dark'] {
+  --bg: #0e1622;
+  --surface: #18212d;
+  --ink: #d4dfee;
+  --muted: #8b99af;
+  --accent: #e8b45e;
+  --on-accent: #0e1622;
+  --user: #9ab2dd;
+  --error: #ea6b60;
   color-scheme: dark;
 }
 @media (prefers-color-scheme: dark) {
-  :root[data-colors='moonlight'][data-mode='system'] {
-    --bg: #0c1220;
-    --surface: #111a2b;
-    --ink: #e8e4d4;
-    --muted: #7c88a2;
-    --accent: #f0d27c;
-    --on-accent: #1a1608;
-    --user: #f0d27c;
-    --error: #ff8a78;
+  :root[data-scene='soria'][data-mode='system'] {
+    --bg: #0e1622;
+    --surface: #18212d;
+    --ink: #d4dfee;
+    --muted: #8b99af;
+    --accent: #e8b45e;
+    --on-accent: #0e1622;
+    --user: #9ab2dd;
+    --error: #ea6b60;
     color-scheme: dark;
   }
 }
-:root[data-colors='moonlight'][data-mode='oled'] {
+:root[data-scene='soria'][data-mode='oled'] {
   --bg: #000000;
-  --surface: #0a0e17;
-  --ink: #e8e4d4;
-  --muted: #8591aa;
-  --accent: #f0d27c;
-  --on-accent: #1a1608;
-  --user: #f0d27c;
-  --error: #ff8a78;
+  --surface: #050b15;
+  --ink: #d4dfee;
+  --muted: #8b99af;
+  --accent: #e8b45e;
+  --on-accent: #050b15;
+  --user: #9ab2dd;
+  --error: #ea6b60;
   color-scheme: dark;
 }
 
-/* Cobalt Snow */
-:root[data-colors='cobalt'] {
-  --bg: #edf1f7;
-  --surface: #f9fbfd;
-  --ink: #0d1b3a;
-  --muted: #52607d;
-  --accent: #0047ab;
-  --on-accent: #f4f8ff;
-  --user: #0047ab;
-  --error: #c62828;
+/* Haystacks */
+:root[data-scene='haystacks'] {
+  --bg: #dfe9e1;
+  --surface: #f0f6f1;
+  --ink: #1a2b1d;
+  --muted: #59685c;
+  --accent: #dfc679;
+  --on-accent: #1a2b1d;
+  --user: #3b6c5b;
+  --error: #c13c36;
+  --scene-night: 0.68;
   color-scheme: light;
 }
-:root[data-colors='cobalt'][data-mode='dark'] {
-  --bg: #081026;
-  --surface: #0e1833;
-  --ink: #e6ecf8;
-  --muted: #8190ae;
-  --accent: #5b8cff;
-  --on-accent: #050b1c;
-  --user: #7aa2ff;
-  --error: #ff7070;
+:root[data-scene='haystacks'][data-mode='dark'] {
+  --bg: #0e1622;
+  --surface: #18212d;
+  --ink: #d4dfee;
+  --muted: #8b99af;
+  --accent: #dfc679;
+  --on-accent: #0e1622;
+  --user: #8fbdac;
+  --error: #ea6b60;
   color-scheme: dark;
 }
 @media (prefers-color-scheme: dark) {
-  :root[data-colors='cobalt'][data-mode='system'] {
-    --bg: #081026;
-    --surface: #0e1833;
-    --ink: #e6ecf8;
-    --muted: #8190ae;
-    --accent: #5b8cff;
-    --on-accent: #050b1c;
-    --user: #7aa2ff;
-    --error: #ff7070;
+  :root[data-scene='haystacks'][data-mode='system'] {
+    --bg: #0e1622;
+    --surface: #18212d;
+    --ink: #d4dfee;
+    --muted: #8b99af;
+    --accent: #dfc679;
+    --on-accent: #0e1622;
+    --user: #8fbdac;
+    --error: #ea6b60;
     color-scheme: dark;
   }
 }
-:root[data-colors='cobalt'][data-mode='oled'] {
+:root[data-scene='haystacks'][data-mode='oled'] {
   --bg: #000000;
-  --surface: #070b17;
-  --ink: #e6ecf8;
-  --muted: #8190ae;
-  --accent: #5b8cff;
-  --on-accent: #050b1c;
-  --user: #7aa2ff;
-  --error: #ff7070;
+  --surface: #050b15;
+  --ink: #d4dfee;
+  --muted: #8b99af;
+  --accent: #dfc679;
+  --on-accent: #050b15;
+  --user: #8fbdac;
+  --error: #ea6b60;
   color-scheme: dark;
 }
 
-/* Tangerine + Ink */
-:root[data-colors='tangerine'] {
-  --bg: #eef0f2;
-  --surface: #fafbfc;
-  --ink: #0f172a;
-  --muted: #5b6474;
-  --accent: #f26b1d;
-  --on-accent: #1a0c02;
-  --user: #b84a0c;
-  --error: #c0263a;
+/* Marsh */
+:root[data-scene='marsh'] {
+  --bg: #d8ece2;
+  --surface: #edf7f2;
+  --ink: #152c22;
+  --muted: #4f6a5e;
+  --accent: #e09e95;
+  --on-accent: #152c22;
+  --user: #326e51;
+  --error: #c13c36;
+  --scene-night: 0.42;
   color-scheme: light;
 }
-:root[data-colors='tangerine'][data-mode='dark'] {
-  --bg: #0b0f19;
-  --surface: #121826;
-  --ink: #e5e9f0;
-  --muted: #8a93a5;
-  --accent: #ff8a3d;
-  --on-accent: #1a0c02;
-  --user: #ff9b57;
-  --error: #ff6b7d;
+:root[data-scene='marsh'][data-mode='dark'] {
+  --bg: #0c1914;
+  --surface: #17241e;
+  --ink: #d5e4dc;
+  --muted: #899e94;
+  --accent: #e6a49b;
+  --on-accent: #0c1914;
+  --user: #89c0a1;
+  --error: #ea6b60;
   color-scheme: dark;
 }
 @media (prefers-color-scheme: dark) {
-  :root[data-colors='tangerine'][data-mode='system'] {
-    --bg: #0b0f19;
-    --surface: #121826;
-    --ink: #e5e9f0;
-    --muted: #8a93a5;
-    --accent: #ff8a3d;
-    --on-accent: #1a0c02;
-    --user: #ff9b57;
-    --error: #ff6b7d;
+  :root[data-scene='marsh'][data-mode='system'] {
+    --bg: #0c1914;
+    --surface: #17241e;
+    --ink: #d5e4dc;
+    --muted: #899e94;
+    --accent: #e6a49b;
+    --on-accent: #0c1914;
+    --user: #89c0a1;
+    --error: #ea6b60;
     color-scheme: dark;
   }
 }
-:root[data-colors='tangerine'][data-mode='oled'] {
+:root[data-scene='marsh'][data-mode='oled'] {
   --bg: #000000;
-  --surface: #0c0d10;
-  --ink: #e5e9f0;
-  --muted: #8a93a5;
-  --accent: #ff8a3d;
-  --on-accent: #1a0c02;
-  --user: #ff9b57;
-  --error: #ff6b7d;
+  --surface: #040e09;
+  --ink: #d5e4dc;
+  --muted: #899e94;
+  --accent: #e6a49b;
+  --on-accent: #040e09;
+  --user: #89c0a1;
+  --error: #ea6b60;
   color-scheme: dark;
 }

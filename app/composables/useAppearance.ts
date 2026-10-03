@@ -1,18 +1,19 @@
 import type { Ref } from 'vue'
-import type { Appearance, ColorSet, ColorSetId, Mode } from '../types/appearance'
+import type { Appearance, Mode, Scene, SceneId } from '../types/appearance'
 import { useCookie, useState } from '#imports'
-import { APPEARANCE_COOKIE, APPEARANCE_MAX_AGE, COLOR_SETS, DEFAULT_APPEARANCE, MODES } from '../constants/appearance'
+import { APPEARANCE_COOKIE, APPEARANCE_MAX_AGE, DEFAULT_APPEARANCE, MODES, SCENES } from '../constants/appearance'
 
 export interface UseAppearance {
   appearance: Readonly<Ref<Appearance>>
-  colorSet: () => ColorSet
-  setColors: (colors: ColorSetId) => void
+  scene: () => Scene
+  setScene: (scene: SceneId) => void
   setMode: (mode: Mode) => void
 }
 
+// Cookies from before the scenes carry a color set instead; they keep their mode and get the default scene.
 function sanitize(value: Partial<Appearance> | null | undefined): Appearance {
   return {
-    colors: COLOR_SETS.some(c => c.id === value?.colors) ? value!.colors! : DEFAULT_APPEARANCE.colors,
+    scene: SCENES.some(s => s.id === value?.scene) ? value!.scene! : DEFAULT_APPEARANCE.scene,
     mode: MODES.some(m => m.id === value?.mode) ? value!.mode! : DEFAULT_APPEARANCE.mode,
   }
 }
@@ -29,8 +30,8 @@ export function useAppearance(): UseAppearance {
 
   return {
     appearance,
-    colorSet: () => COLOR_SETS.find(c => c.id === appearance.value.colors)!,
-    setColors: colors => update({ ...appearance.value, colors }),
+    scene: () => SCENES.find(s => s.id === appearance.value.scene)!,
+    setScene: scene => update({ ...appearance.value, scene }),
     setMode: mode => update({ ...appearance.value, mode }),
   }
 }

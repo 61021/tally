@@ -1,47 +1,37 @@
 <script setup lang="ts">
-import type { ResolvedMode } from '../types/appearance'
 import UIcon from '@nuxt/ui/components/Icon.vue'
-import { computed } from 'vue'
 import { useAppearance } from '../composables/useAppearance'
-import { COLOR_SETS, MODES } from '../constants/appearance'
+import { MODES, SCENES } from '../constants/appearance'
 
-const { appearance, setColors, setMode } = useAppearance()
+const { appearance, setScene, setMode } = useAppearance()
 
-// System mode can't be resolved on the server, so it renders both swatch pairs and CSS shows the right one.
-const swatchModes = computed<ResolvedMode[]>(() => appearance.value.mode === 'system' ? ['light', 'dark'] : [appearance.value.mode as ResolvedMode])
+const painters = [...new Set(SCENES.map(s => s.painting.artist))].join(' and ')
 </script>
 
 <template>
   <div class="grid gap-5">
     <section>
       <h3 class="mx-1 mb-2 text-sm text-muted">
-        Colors
+        Scene
       </h3>
-      <div role="radiogroup" aria-label="Colors" class="divide-y divide-default overflow-hidden rounded-[10px] border border-default bg-surface">
+      <div role="radiogroup" aria-label="Scene" class="divide-y divide-default overflow-hidden rounded-[10px] border border-default bg-surface">
         <button
-          v-for="set in COLOR_SETS"
-          :key="set.id"
+          v-for="scene in SCENES"
+          :key="scene.id"
           type="button"
           role="radio"
-          :aria-checked="appearance.colors === set.id"
-          class="grid min-h-12.5 w-full grid-cols-[auto_1fr_auto] items-center gap-3 px-3.5 text-left text-[17px]"
-          @click="setColors(set.id)"
+          :aria-checked="appearance.scene === scene.id"
+          class="grid min-h-14 w-full grid-cols-[56px_1fr_auto] items-center gap-3.5 px-3.5 py-2 text-left text-[17px]"
+          @click="setScene(scene.id)"
         >
-          <span>
-            <span
-              v-for="m in swatchModes"
-              :key="m"
-              class="flex"
-              :class="swatchModes.length > 1 && (m === 'light' ? '[@media(prefers-color-scheme:dark)]:hidden' : 'hidden [@media(prefers-color-scheme:dark)]:flex')"
-            >
-              <span class="size-4.5 rounded-full border border-default" :style="{ background: set.themeColor[m] }" />
-              <span class="-ml-1.5 size-4.5 rounded-full border border-default" :style="{ background: set.accent[m] }" />
-            </span>
-          </span>
-          <span>{{ set.name }}</span>
-          <UIcon name="i-ph-check" class="size-4.5 text-user" :class="appearance.colors === set.id ? 'opacity-100' : 'opacity-0'" />
+          <img :src="`/scenes/${scene.id}-thumb.avif`" alt="" width="56" height="36" loading="lazy" class="h-9 w-14 rounded-[5px] object-cover ring ring-default" :style="{ objectPosition: scene.focus }">
+          <span>{{ scene.name }}</span>
+          <UIcon name="i-ph-check" class="size-4.5 text-user" :class="appearance.scene === scene.id ? 'opacity-100' : 'opacity-0'" />
         </button>
       </div>
+      <p class="mx-1 mt-2 font-serif text-sm text-muted">
+        Paintings by {{ painters }}.
+      </p>
     </section>
 
     <section>
