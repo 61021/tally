@@ -8,6 +8,7 @@ Picked from rendered tastings on 30/9/2026 and 1/10/2026.
 - **Modes:** System, Light, Dark, OLED. System follows the OS between light and dark, never OLED. OLED puts the page on true black and the board on a near-black surface.
 - **Board:** the Moonrise grid with a solid cell background and "whisper" lines: cell lines at 5% ink, box lines at 16%, one rounded 10px frame. The selected cell fills with `--ink` (near-white on dark, near-black on light), its digit or notes knocked out in `--surface`, and turns `--error` red when its digit is wrong; cells with the same digit take a neutral fill (ink 10%), the row, column and box a faint band (ink 4%), hover ink 6%. No circles. Every change fades over 90ms. Given digits are Geist Mono 400, the player's are 300 in the set's `--user` color.
 - **Finish:** the board thins out and a moon (the accent color) rises behind it.
+- **Page transition:** "Ink in" (`app/utils/ink.ts`). The old page goes on the next frame. The new one lands as a pencil sketch, outlined type and empty surfaces with the board's grid in pencil, and inks in from the top left over about 0.8s. A puzzle opened from inside the app loads before the page changes, so its board arrives whole. Under reduced motion pages swap with no animation.
 - **Contrast:** every set passes WCAG AA in all three modes: body text 7:1 on the surface, muted and digits 4.5:1, accent labels 4.5:1.
 
 ## Tokens
