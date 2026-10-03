@@ -32,7 +32,7 @@ function back(): void {
       </h1>
     </header>
 
-    <div class="lg:grid lg:grid-cols-2 lg:items-start lg:gap-12">
+    <div class="cel rounded-[10px] border border-default bg-surface p-5 lg:grid lg:grid-cols-2 lg:items-start lg:gap-12 lg:p-8">
       <AppearancePicker />
 
       <div>

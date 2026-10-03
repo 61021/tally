@@ -163,9 +163,9 @@ onUnmounted(() => removeEventListener('keydown', onKey))
       </NuxtLink>
       <h1 class="text-lg leading-tight font-medium">
         {{ name }}
-        <span class="block font-sans text-[13px] font-normal text-muted">Puzzle {{ number }}</span>
+        <span class="block font-sans text-[13px] font-normal">Puzzle {{ number }}</span>
       </h1>
-      <span v-if="settings.showTimer" class="mr-1 font-mono text-[15px] text-muted" aria-label="Time">{{ formatTime(elapsedMs) }}</span>
+      <span v-if="settings.showTimer" class="mr-1 font-mono text-[15px]" aria-label="Time">{{ formatTime(elapsedMs) }}</span>
       <span v-else />
       <NuxtLink to="/settings" class="grid size-10 place-items-center" aria-label="Settings">
         <UIcon name="i-ph-gear-six" class="size-5.5" />
@@ -187,10 +187,10 @@ onUnmounted(() => removeEventListener('keydown', onKey))
           :solved="game.completed"
           @select="select"
         />
-        <div v-else-if="status === 'loading'" class="aspect-square w-full animate-pulse rounded-[10px] border border-default bg-surface" aria-label="Loading the puzzle" />
+        <div v-else-if="status === 'loading'" class="cel aspect-square w-full animate-pulse rounded-[10px] border border-default bg-surface" aria-label="Loading the puzzle" />
       </div>
 
-      <aside class="w-full lg:w-[340px] lg:shrink-0">
+      <aside class="cel mt-3 w-full rounded-[10px] border border-default bg-surface p-4 lg:mt-0 lg:w-[392px] lg:shrink-0 lg:px-6.5 lg:pt-6.5 lg:pb-5.5">
         <div class="mb-2 hidden items-end justify-between lg:flex">
           <h1 class="text-[34px] leading-none font-normal tracking-[-0.015em]">
             {{ name }}
@@ -238,10 +238,10 @@ onUnmounted(() => removeEventListener('keydown', onKey))
 </template>
 
 <style scoped>
-/* Beside the sidebar the board takes the full height, or the width the 64px rail and 340px panel leave (516px with padding and gap). */
+/* Beside the sidebar the board takes the full height, or the width the 64px rail and 392px panel leave (568px with padding and gap). */
 @media (min-width: 1024px) {
   .board-col {
-    width: clamp(420px, min(100dvh - 4rem, 100vw - 516px), 960px);
+    width: clamp(420px, min(100dvh - 4rem, 100vw - 568px), 960px);
     flex: none;
   }
 }

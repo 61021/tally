@@ -23,6 +23,6 @@ onMounted(() => navigateTo(`/sudoku/${difficulty}/${nextNumber(difficulty)}`, { 
 
 <template>
   <main>
-    <div class="mx-auto mt-14 aspect-square w-full max-w-md animate-pulse md:max-w-xl rounded-[10px] border border-default bg-surface lg:mt-0 lg:max-w-[680px]" aria-label="Finding a puzzle" />
+    <div class="cel mx-auto mt-14 aspect-square w-full max-w-md animate-pulse md:max-w-xl rounded-[10px] border border-default bg-surface lg:mt-0 lg:max-w-[680px]" aria-label="Finding a puzzle" />
   </main>
 </template>

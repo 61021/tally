@@ -65,6 +65,30 @@ body {
   background: transparent;
 }
 
+/* A cel: a solid surface laid over the painting, lifted by a shadow tinted to the scene. */
+:root {
+  --cel-shadow:
+    0 1px 2px color-mix(in oklab, var(--ink) 12%, transparent),
+    0 14px 30px -14px color-mix(in oklab, #000 38%, transparent);
+}
+
+:root[data-mode='dark'],
+:root[data-mode='oled'] {
+  --cel-shadow:
+    0 1px 2px color-mix(in oklab, #000 40%, transparent), 0 14px 30px -14px color-mix(in oklab, #000 70%, transparent);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-mode='system'] {
+    --cel-shadow:
+      0 1px 2px color-mix(in oklab, #000 40%, transparent), 0 14px 30px -14px color-mix(in oklab, #000 70%, transparent);
+  }
+}
+
+.cel {
+  box-shadow: var(--cel-shadow);
+}
+
 /* "Ink in" page transition (app/utils/ink.ts): outlined type and empty surfaces, then ink from the top. */
 /* Each element inks on its own --inked. Inherited color would restart a child mid-ink whenever it restyles (a hover is enough). */
 @property --inked {
@@ -91,6 +115,10 @@ body {
 
 .ink-pre [data-ink='cell'] {
   box-shadow: inset 0 0 0 1px var(--box-line);
+}
+
+.ink-pre .cel {
+  box-shadow: none;
 }
 
 .ink-run * {

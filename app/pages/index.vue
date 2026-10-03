@@ -75,7 +75,7 @@ onBeforeUnmount(() => clearTimeout(slowOpen))
     </h1>
 
     <div class="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] lg:items-start lg:gap-8">
-      <section class="rounded-[10px] border border-default bg-surface p-4.5 lg:grid lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-8 lg:p-7" aria-labelledby="sudoku-title">
+      <section class="cel rounded-[10px] border border-default bg-surface p-4.5 lg:grid lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-8 lg:p-7" aria-labelledby="sudoku-title">
         <div>
           <div class="mb-2 flex items-baseline justify-between lg:mb-4">
             <h2 id="sudoku-title" class="text-[22px] font-semibold lg:text-[28px]">
@@ -102,7 +102,7 @@ onBeforeUnmount(() => clearTimeout(slowOpen))
       </section>
 
       <div class="grid content-start gap-4">
-        <section v-if="!user" class="rounded-[10px] border border-default bg-surface p-4.5 lg:p-6">
+        <section v-if="!user" class="cel rounded-[10px] border border-default bg-surface p-4.5 lg:p-6">
           <p class="font-serif text-[16px] leading-snug lg:text-[17px]">
             <b class="font-medium">Make yourself at home.</b>{{ ' ' }}
             <span class="text-muted">Pick a username and Tally will know you next time.</span>
@@ -111,7 +111,7 @@ onBeforeUnmount(() => clearTimeout(slowOpen))
             Make an account
           </UButton>
         </section>
-        <NuxtLink v-else to="/account" class="level hidden items-center gap-3 rounded-[10px] border border-default bg-surface p-5 lg:flex">
+        <NuxtLink v-else to="/account" class="level cel hidden items-center gap-3 rounded-[10px] border border-default bg-surface p-5 lg:flex">
           <span class="grid size-11 place-items-center rounded-full border border-default bg-page text-[18px]">{{ user.username[0]!.toUpperCase() }}</span>
           <span class="leading-tight">
             <b class="block text-[18px] font-medium">{{ user.username }}</b>
@@ -119,8 +119,8 @@ onBeforeUnmount(() => clearTimeout(slowOpen))
           </span>
         </NuxtLink>
 
-        <div class="mt-2 grid grid-cols-[40px_1fr] items-center gap-3 px-0.5 opacity-75 lg:mt-0 lg:rounded-[10px] lg:border lg:border-dashed lg:border-default lg:p-5">
-          <span class="grid size-10 place-items-center rounded-lg border border-default bg-surface">
+        <div class="grid grid-cols-[40px_1fr] items-center gap-3 rounded-[10px] border border-dashed border-default bg-surface p-4 lg:p-5">
+          <span class="grid size-10 place-items-center rounded-lg border border-default bg-page text-muted">
             <UIcon name="i-ph-hourglass-simple" class="size-5" />
           </span>
           <p class="font-serif leading-tight">
@@ -131,7 +131,7 @@ onBeforeUnmount(() => clearTimeout(slowOpen))
       </div>
     </div>
 
-    <footer class="mt-auto grid gap-1.5 px-0.5 pt-10 font-serif text-sm text-muted lg:flex lg:justify-between">
+    <footer class="mt-auto grid gap-1.5 px-0.5 pt-10 font-serif text-sm lg:flex lg:justify-between">
       <p>Built for a café table.</p>
       <p>Crafted by <a href="https://vitex.dev" class="text-default underline underline-offset-3">Vitex</a></p>
     </footer>

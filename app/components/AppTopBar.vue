@@ -8,7 +8,7 @@ const { user } = useAccount()
 </script>
 
 <template>
-  <header class="sticky top-0 z-10 border-b border-default bg-page">
+  <header>
     <nav class="mx-auto flex h-16 max-w-6xl items-center justify-between px-8" aria-label="Main">
       <NuxtLink to="/" aria-label="Tally, home" class="rounded-md">
         <TallyWordmark />
@@ -39,5 +39,6 @@ const { user } = useAccount()
 
 .link.router-link-active {
   color: var(--user);
+  background: var(--surface);
 }
 </style>

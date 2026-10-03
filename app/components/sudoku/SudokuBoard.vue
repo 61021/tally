@@ -56,7 +56,7 @@ function label(cell: number): string {
 <template>
   <div class="board-wrap" :class="{ solved, 'no-motion': staticFinish || !settled }">
     <div class="moon" aria-hidden="true" />
-    <div ref="board" class="board" role="group" aria-label="Sudoku board" data-ink="lines">
+    <div ref="board" class="board cel" role="group" aria-label="Sudoku board" data-ink="lines">
       <div v-for="box in BOXES" :key="box.index" class="box" data-ink="lines">
         <button
           v-for="cell in box.cells"
