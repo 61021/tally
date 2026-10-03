@@ -2,14 +2,14 @@
 import type { Difficulty } from '#shared/sudoku/types'
 import UButton from '@nuxt/ui/components/Button.vue'
 import UIcon from '@nuxt/ui/components/Icon.vue'
-import { onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { NuxtLink } from '#components'
 import { useHead } from '#imports'
 import { DIFFICULTIES } from '#shared/sudoku/constants'
 import BoardPreview from '../components/sudoku/BoardPreview.vue'
 import TallyWordmark from '../components/TallyWordmark.vue'
 import { useAccount } from '../composables/useAccount'
-import { DIFFICULTY_NAMES } from '../constants/sudoku'
+import { DIFFICULTY_NAMES, SLOW_OPEN_MS } from '../constants/sudoku'
 import { loadProgress, solvedNumbers, unfinished } from '../utils/progress'
 import { formatTime } from '../utils/time'
 
@@ -35,6 +35,22 @@ onMounted(() => {
     return [d, { playing: progress ? formatTime(progress.elapsedMs) : null, solved: solvedNumbers(d).size }]
   }))
 })
+
+// A level's puzzles load before the page changes; if that takes a moment, its row says so.
+const opening = ref<Difficulty | null>(null)
+let slowOpen: ReturnType<typeof setTimeout> | undefined
+
+function openLevel(event: MouseEvent, difficulty: Difficulty): void {
+  if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+    return
+  clearTimeout(slowOpen)
+  opening.value = null
+  slowOpen = setTimeout(() => {
+    opening.value = difficulty
+  }, SLOW_OPEN_MS)
+}
+
+onBeforeUnmount(() => clearTimeout(slowOpen))
 </script>
 
 <template>
@@ -72,12 +88,12 @@ onMounted(() => {
           </p>
           <ul class="grid">
             <li v-for="d in DIFFICULTIES" :key="d">
-              <NuxtLink :to="`/sudoku/${d}`" class="level grid h-12 grid-cols-[1fr_auto_22px] items-center gap-2.5 rounded-lg text-[17px] lg:-mx-3 lg:h-13 lg:px-3 lg:text-[19px]">
+              <NuxtLink :to="`/sudoku/${d}`" class="level grid h-12 grid-cols-[1fr_auto_22px] items-center gap-2.5 rounded-lg text-[17px] lg:-mx-3 lg:h-13 lg:px-3 lg:text-[19px]" :aria-busy="opening === d || undefined" @click="openLevel($event, d)">
                 <span :class="{ 'font-semibold': levels[d]?.playing }">{{ DIFFICULTY_NAMES[d] }}</span>
                 <span v-if="levels[d]?.playing" class="font-mono text-sm">{{ levels[d]!.playing }}</span>
                 <span v-else-if="levels[d]?.solved" class="text-sm text-muted">{{ levels[d]!.solved }} solved</span>
                 <span v-else class="text-sm text-muted">New</span>
-                <UIcon :name="levels[d]?.playing ? 'i-ph-play-circle' : 'i-ph-caret-right'" class="size-4.5 justify-self-end text-user" />
+                <UIcon :name="opening === d ? 'i-ph-spinner-gap' : levels[d]?.playing ? 'i-ph-play-circle' : 'i-ph-caret-right'" class="size-4.5 justify-self-end text-user" :class="{ 'animate-spin': opening === d }" />
               </NuxtLink>
             </li>
           </ul>

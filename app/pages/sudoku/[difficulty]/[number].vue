@@ -4,7 +4,7 @@ import UButton from '@nuxt/ui/components/Button.vue'
 import UIcon from '@nuxt/ui/components/Icon.vue'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { NuxtLink } from '#components'
-import { definePageMeta, useHead, useRoute } from '#imports'
+import { definePageMeta, useHead, useNuxtApp, useRoute } from '#imports'
 import { boxOf, DIFFICULTIES } from '#shared/sudoku/constants'
 import { isGiven, remainingDigits, wrongCells } from '#shared/sudoku/game'
 import { findConflicts } from '#shared/sudoku/grid'
@@ -17,6 +17,7 @@ import SudokuSolved from '../../../components/sudoku/SudokuSolved.vue'
 import { useGameSettings } from '../../../composables/useGameSettings'
 import { useSudokuGame } from '../../../composables/useSudokuGame'
 import { BANK_SIZE, DIFFICULTY_NAMES } from '../../../constants/sudoku'
+import { loadBank } from '../../../utils/bank'
 import { formatTime } from '../../../utils/time'
 
 definePageMeta({
@@ -25,6 +26,11 @@ definePageMeta({
   validate: (route) => {
     const n = Number(route.params.number)
     return DIFFICULTIES.includes(route.params.difficulty as Difficulty) && Number.isInteger(n) && n >= 1 && n <= BANK_SIZE
+  },
+  // From inside the app the puzzle loads before the page changes, so the board arrives whole; a failed load shows on the page.
+  middleware: async (to) => {
+    if (import.meta.client && !useNuxtApp().isHydrating)
+      await loadBank(to.params.difficulty as Difficulty).catch(() => {})
   },
 })
 

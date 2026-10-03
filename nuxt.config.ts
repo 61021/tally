@@ -20,6 +20,8 @@ export default defineNuxtConfig({
 
   icon: {
     serverBundle: 'local',
+    // Shown only after a click, so it ships with the client instead of waiting on a fetch.
+    clientBundle: { icons: ['ph:spinner-gap'] },
   },
 
   $development: {

@@ -1,12 +1,18 @@
 <script setup lang="ts">
 import type { Difficulty } from '#shared/sudoku/types'
 import { onMounted } from 'vue'
-import { definePageMeta, navigateTo, useRoute } from '#imports'
+import { definePageMeta, navigateTo, useNuxtApp, useRoute } from '#imports'
 import { DIFFICULTIES } from '#shared/sudoku/constants'
 import { nextNumber } from '../../../utils/progress'
 
 definePageMeta({
   validate: route => DIFFICULTIES.includes(route.params.difficulty as Difficulty),
+  // Inside the app the puzzle is picked before this page renders; a fresh load picks it on mount below.
+  middleware: (to) => {
+    const d = to.params.difficulty as Difficulty
+    if (import.meta.client && !useNuxtApp().isHydrating)
+      return navigateTo(`/sudoku/${d}/${nextNumber(d)}`)
+  },
 })
 
 const difficulty = useRoute().params.difficulty as Difficulty
