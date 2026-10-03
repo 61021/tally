@@ -5,9 +5,9 @@ defineProps<{ puzzle: string }>()
 </script>
 
 <template>
-  <div class="preview" aria-hidden="true">
-    <div v-for="box in BOXES" :key="box.index" class="box">
-      <span v-for="cell in box.cells" :key="cell">{{ puzzle[cell] !== '0' ? puzzle[cell] : '' }}</span>
+  <div class="preview" aria-hidden="true" data-ink="lines">
+    <div v-for="box in BOXES" :key="box.index" class="box" data-ink="lines">
+      <span v-for="cell in box.cells" :key="cell" data-ink="cell">{{ puzzle[cell] !== '0' ? puzzle[cell] : '' }}</span>
     </div>
   </div>
 </template>

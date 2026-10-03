@@ -56,13 +56,14 @@ function label(cell: number): string {
 <template>
   <div class="board-wrap" :class="{ solved, 'no-motion': staticFinish || !settled }">
     <div class="moon" aria-hidden="true" />
-    <div ref="board" class="board" role="group" aria-label="Sudoku board">
-      <div v-for="box in BOXES" :key="box.index" class="box">
+    <div ref="board" class="board" role="group" aria-label="Sudoku board" data-ink="lines">
+      <div v-for="box in BOXES" :key="box.index" class="box" data-ink="lines">
         <button
           v-for="cell in box.cells"
           :key="cell"
           type="button"
           class="cell"
+          data-ink="cell"
           :class="{
             given: puzzle[cell] !== '0',
             user: puzzle[cell] === '0' && values[cell],
