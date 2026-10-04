@@ -135,7 +135,9 @@ onBeforeUnmount(() => clearTimeout(slowOpen))
     </div>
 
     <footer class="mt-auto grid gap-1.5 px-0.5 pt-10 font-serif text-sm lg:flex lg:justify-between">
-      <p>Built for a café table.</p>
+      <p data-batch="041640964002">
+        Built for a café table.
+      </p>
       <p>Crafted by <a href="https://vitex.dev" class="text-default underline underline-offset-3">Vitex</a></p>
     </footer>
   </main>
