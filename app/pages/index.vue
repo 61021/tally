@@ -98,7 +98,10 @@ onBeforeUnmount(() => clearTimeout(slowOpen))
             </li>
           </ul>
         </div>
-        <BoardPreview class="hidden self-center lg:grid" :puzzle="PREVIEW" />
+        <!-- The preview's scoped display: grid would beat a hidden class on its own root. -->
+        <div class="hidden self-center lg:block">
+          <BoardPreview :puzzle="PREVIEW" />
+        </div>
       </section>
 
       <div class="grid content-start gap-4">
