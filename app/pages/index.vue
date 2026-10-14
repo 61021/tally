@@ -7,13 +7,11 @@ import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { NuxtLink } from '#components'
 import { useHead } from '#imports'
 import { REGION_NAMES, REGIONS } from '#shared/atlas/constants'
-import { COUNTRIES } from '#shared/atlas/countries'
 import { isFinished } from '#shared/atlas/round'
 import { DIFFICULTIES } from '#shared/sudoku/constants'
 import GlobePreview from '../components/atlas/GlobePreview.vue'
 import BoardPreview from '../components/sudoku/BoardPreview.vue'
 import TallyWordmark from '../components/TallyWordmark.vue'
-import WordWall from '../components/WordWall.vue'
 import { useAccount } from '../composables/useAccount'
 import { SLOW_OPEN_MS } from '../constants/hub'
 import { DIFFICULTY_NAMES } from '../constants/sudoku'
@@ -26,12 +24,6 @@ useHead({ title: 'Tally' })
 
 /** A real medium puzzle, drawn small on the Sudoku card. */
 const PREVIEW = '530070000600195000098000060800060003400803001700020006060000280000419005000080079'
-
-/** Every country Atlas asks about, lit up wherever the mouse passes. */
-const WALL = COUNTRIES.map(c => c.name)
-
-/** The heading, the top bar's links and the footer keep clear of the wall. */
-const CLEAR = ['main h1', 'header nav a', 'main footer p']
 
 const { user } = useAccount()
 
@@ -82,8 +74,6 @@ onBeforeUnmount(() => clearTimeout(slowOpen))
 
 <template>
   <main class="mx-auto flex min-h-[calc(100dvh-2.5rem)] max-w-md flex-col md:max-w-xl lg:min-h-[calc(100dvh-9rem)] lg:max-w-5xl">
-    <WordWall :words="WALL" :clear="CLEAR" />
-
     <header class="mb-7 flex h-9 items-center justify-between lg:hidden">
       <TallyWordmark />
       <div class="flex items-center gap-1">
