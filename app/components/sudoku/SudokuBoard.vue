@@ -63,7 +63,6 @@ function label(cell: number): string {
           :key="cell"
           type="button"
           class="cell"
-
           :class="{
             given: puzzle[cell] !== '0',
             user: puzzle[cell] === '0' && values[cell],
