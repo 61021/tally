@@ -1,15 +1,24 @@
 <script setup lang="ts">
+import type { Region } from '#shared/atlas/types'
 import type { Difficulty } from '#shared/sudoku/types'
 import UButton from '@nuxt/ui/components/Button.vue'
 import UIcon from '@nuxt/ui/components/Icon.vue'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { NuxtLink } from '#components'
 import { useHead } from '#imports'
+import { REGION_NAMES, REGIONS } from '#shared/atlas/constants'
+import { COUNTRIES } from '#shared/atlas/countries'
+import { isFinished } from '#shared/atlas/round'
 import { DIFFICULTIES } from '#shared/sudoku/constants'
+import GlobePreview from '../components/atlas/GlobePreview.vue'
 import BoardPreview from '../components/sudoku/BoardPreview.vue'
 import TallyWordmark from '../components/TallyWordmark.vue'
+import WordWall from '../components/WordWall.vue'
 import { useAccount } from '../composables/useAccount'
-import { DIFFICULTY_NAMES, SLOW_OPEN_MS } from '../constants/sudoku'
+import { SLOW_OPEN_MS } from '../constants/hub'
+import { DIFFICULTY_NAMES } from '../constants/sudoku'
+import { formatPoints } from '../utils/atlas-format'
+import { bestScore, loadRound } from '../utils/atlas-progress'
 import { loadProgress, solvedNumbers, unfinished } from '../utils/progress'
 import { formatTime } from '../utils/time'
 
@@ -18,6 +27,12 @@ useHead({ title: 'Tally' })
 /** A real medium puzzle, drawn small on the Sudoku card. */
 const PREVIEW = '530070000600195000098000060800060003400803001700020006060000280000419005000080079'
 
+/** Every country Atlas asks about, lit up wherever the mouse passes. */
+const WALL = COUNTRIES.map(c => c.name)
+
+/** The heading and the top bar's links keep clear of the wall. */
+const CLEAR = ['main h1', 'header nav a']
+
 const { user } = useAccount()
 
 interface LevelState {
@@ -25,8 +40,15 @@ interface LevelState {
   solved: number
 }
 
-// Progress lives in this browser, so the server renders the list plain and it fills in on arrival.
+interface RegionState {
+  /** "4 of 10" while a round is open. */
+  playing: string | null
+  best: number | null
+}
+
+// Progress lives in this browser, so the server renders the lists plain and they fill in on arrival.
 const levels = ref<Partial<Record<Difficulty, LevelState>>>({})
+const regions = ref<Partial<Record<Region, RegionState>>>({})
 
 onMounted(() => {
   levels.value = Object.fromEntries(DIFFICULTIES.map((d) => {
@@ -34,19 +56,24 @@ onMounted(() => {
     const progress = open ? loadProgress(d, open) : null
     return [d, { playing: progress ? formatTime(progress.elapsedMs) : null, solved: solvedNumbers(d).size }]
   }))
+  regions.value = Object.fromEntries(REGIONS.map((r) => {
+    const round = loadRound(r)
+    const open = round && round.pins.length > 0 && !isFinished(round)
+    return [r, { playing: open ? `${round.pins.length + 1} of ${round.targets.length}` : null, best: bestScore(r) }]
+  }))
 })
 
-// A level's puzzles load before the page changes; if that takes a moment, its row says so.
-const opening = ref<Difficulty | null>(null)
+// A game loads before the page changes; if that takes a moment, its row says so.
+const opening = ref<string | null>(null)
 let slowOpen: ReturnType<typeof setTimeout> | undefined
 
-function openLevel(event: MouseEvent, difficulty: Difficulty): void {
+function open(event: MouseEvent, key: string): void {
   if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
     return
   clearTimeout(slowOpen)
   opening.value = null
   slowOpen = setTimeout(() => {
-    opening.value = difficulty
+    opening.value = key
   }, SLOW_OPEN_MS)
 }
 
@@ -55,6 +82,8 @@ onBeforeUnmount(() => clearTimeout(slowOpen))
 
 <template>
   <main class="mx-auto flex min-h-[calc(100dvh-2.5rem)] max-w-md flex-col md:max-w-xl lg:min-h-[calc(100dvh-9rem)] lg:max-w-5xl">
+    <WordWall :words="WALL" :clear="CLEAR" />
+
     <header class="mb-7 flex h-9 items-center justify-between lg:hidden">
       <TallyWordmark />
       <div class="flex items-center gap-1">
@@ -70,25 +99,36 @@ onBeforeUnmount(() => clearTimeout(slowOpen))
       </div>
     </header>
 
-    <h1 class="mb-5 text-[32px] leading-tight font-normal tracking-[-0.015em] lg:mt-4 lg:mb-10 lg:text-[52px] lg:tracking-[-0.02em]">
-      {{ user ? `What'll it be, ${user.username}?` : 'What\'ll it be?' }}
-    </h1>
+    <div class="mb-5 lg:mt-4 lg:mb-10 lg:flex lg:items-end lg:justify-between lg:gap-8">
+      <h1 class="text-[32px] leading-tight font-normal tracking-[-0.015em] lg:text-[52px] lg:tracking-[-0.02em]">
+        {{ user ? `What'll it be, ${user.username}?` : 'What\'ll it be?' }}
+      </h1>
+      <section v-if="!user" class="cel hidden items-center gap-5 rounded-[10px] border border-default bg-surface py-3 pr-3 pl-5 lg:flex">
+        <p class="font-serif text-[16px] leading-snug">
+          <b class="block font-medium">Make yourself at home.</b>
+          <span class="text-muted">Pick a username and Tally will know you next time.</span>
+        </p>
+        <UButton to="/signin" size="lg" variant="outline" color="neutral" class="shrink-0 font-sans text-[16px]">
+          Make an account
+        </UButton>
+      </section>
+    </div>
 
-    <div class="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] lg:items-start lg:gap-8">
-      <section class="cel rounded-[10px] border border-default bg-surface p-4.5 lg:grid lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-8 lg:p-7" aria-labelledby="sudoku-title">
+    <div class="grid gap-4 lg:grid-cols-2 lg:gap-8">
+      <section class="game cel" aria-labelledby="sudoku-title">
         <div>
-          <div class="mb-2 flex items-baseline justify-between lg:mb-4">
+          <div class="mb-2 flex items-baseline justify-between lg:mb-3">
             <h2 id="sudoku-title" class="text-[22px] font-semibold lg:text-[28px]">
               Sudoku
             </h2>
             <UIcon name="i-ph-grid-nine" class="size-5.5 text-muted lg:hidden" />
           </div>
-          <p class="mb-3 hidden font-serif text-[16px] text-muted lg:block">
+          <p class="mb-2 hidden font-serif text-[16px] text-muted lg:block">
             Four levels, 2,500 puzzles each. Hints explain themselves.
           </p>
           <ul class="grid">
             <li v-for="d in DIFFICULTIES" :key="d">
-              <NuxtLink :to="`/sudoku/${d}`" class="level grid h-12 grid-cols-[1fr_auto_22px] items-center gap-2.5 rounded-lg text-[17px] lg:-mx-3 lg:h-13 lg:px-3 lg:text-[19px]" :aria-busy="opening === d || undefined" @click="openLevel($event, d)">
+              <NuxtLink :to="`/sudoku/${d}`" class="row" :aria-busy="opening === d || undefined" @click="open($event, d)">
                 <span :class="{ 'font-semibold': levels[d]?.playing }">{{ DIFFICULTY_NAMES[d] }}</span>
                 <span v-if="levels[d]?.playing" class="font-mono text-sm">{{ levels[d]!.playing }}</span>
                 <span v-else-if="levels[d]?.solved" class="text-sm text-muted">{{ levels[d]!.solved }} solved</span>
@@ -104,34 +144,43 @@ onBeforeUnmount(() => clearTimeout(slowOpen))
         </div>
       </section>
 
-      <div class="grid content-start gap-4">
-        <section v-if="!user" class="cel rounded-[10px] border border-default bg-surface p-4.5 lg:p-6">
-          <p class="font-serif text-[16px] leading-snug lg:text-[17px]">
-            <b class="font-medium">Make yourself at home.</b>{{ ' ' }}
-            <span class="text-muted">Pick a username and Tally will know you next time.</span>
+      <section class="game cel" aria-labelledby="atlas-title">
+        <div>
+          <div class="mb-2 flex items-baseline justify-between lg:mb-3">
+            <h2 id="atlas-title" class="text-[22px] font-semibold lg:text-[28px]">
+              Atlas
+            </h2>
+            <UIcon name="i-ph-globe-hemisphere-east" class="size-5.5 text-muted lg:hidden" />
+          </div>
+          <p class="mb-2 hidden font-serif text-[16px] text-muted lg:block">
+            Ten countries a round. Pin each on a blank map.
           </p>
-          <UButton to="/signin" size="lg" block variant="outline" color="neutral" class="mt-3 font-sans text-[16px] lg:mt-4">
-            Make an account
-          </UButton>
-        </section>
-        <NuxtLink v-else to="/account" class="level cel hidden items-center gap-3 rounded-[10px] border border-default bg-surface p-5 lg:flex">
-          <span class="grid size-11 place-items-center rounded-full border border-default bg-page text-[18px]">{{ user.username[0]!.toUpperCase() }}</span>
-          <span class="leading-tight">
-            <b class="block text-[18px] font-medium">{{ user.username }}</b>
-            <span class="text-[15px] text-muted">Your account</span>
-          </span>
-        </NuxtLink>
-
-        <div class="grid grid-cols-[40px_1fr] items-center gap-3 rounded-[10px] border border-dashed border-default bg-surface p-4 lg:p-5">
-          <span class="grid size-10 place-items-center rounded-lg border border-default bg-page text-muted">
-            <UIcon name="i-ph-hourglass-simple" class="size-5" />
-          </span>
-          <p class="font-serif leading-tight">
-            <b class="block text-lg font-medium">More games soon</b>
-            <span class="text-sm text-muted">The next one is being built.</span>
-          </p>
+          <ul class="grid">
+            <li v-for="r in REGIONS" :key="r">
+              <NuxtLink :to="`/atlas/${r}`" class="row" :aria-busy="opening === r || undefined" @click="open($event, r)">
+                <span :class="{ 'font-semibold': regions[r]?.playing }">{{ REGION_NAMES[r] }}</span>
+                <span v-if="regions[r]?.playing" class="font-mono text-sm">{{ regions[r]!.playing }}</span>
+                <span v-else-if="regions[r]?.best !== null && regions[r]?.best !== undefined" class="text-sm text-muted">Best {{ formatPoints(regions[r]!.best!) }}</span>
+                <span v-else class="text-sm text-muted">New</span>
+                <UIcon :name="opening === r ? 'i-ph-spinner-gap' : regions[r]?.playing ? 'i-ph-play-circle' : 'i-ph-caret-right'" class="size-4.5 justify-self-end text-user" :class="{ 'animate-spin': opening === r }" />
+              </NuxtLink>
+            </li>
+          </ul>
         </div>
-      </div>
+        <div class="hidden self-center lg:block">
+          <GlobePreview />
+        </div>
+      </section>
+
+      <section v-if="!user" class="cel rounded-[10px] border border-default bg-surface p-4.5 lg:hidden">
+        <p class="font-serif text-[16px] leading-snug">
+          <b class="font-medium">Make yourself at home.</b>{{ ' ' }}
+          <span class="text-muted">Pick a username and Tally will know you next time.</span>
+        </p>
+        <UButton to="/signin" size="lg" block variant="outline" color="neutral" class="mt-3 font-sans text-[16px]">
+          Make an account
+        </UButton>
+      </section>
     </div>
 
     <footer class="mt-auto grid gap-1.5 px-0.5 pt-10 font-serif text-sm lg:flex lg:justify-between">
@@ -144,8 +193,42 @@ onBeforeUnmount(() => clearTimeout(slowOpen))
 </template>
 
 <style scoped>
+.game {
+  border: 1px solid var(--ui-border);
+  border-radius: 10px;
+  background: var(--surface);
+  padding: 18px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr auto 22px;
+  align-items: center;
+  gap: 10px;
+  height: 48px;
+  border-radius: 8px;
+  font-size: 17px;
+}
+
+@media (min-width: 1024px) {
+  .game {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 150px;
+    align-items: start;
+    gap: 24px;
+    padding: 24px 26px;
+  }
+
+  .row {
+    height: 46px;
+    margin-inline: -12px;
+    padding-inline: 12px;
+    font-size: 18px;
+  }
+}
+
 @media (hover: hover) and (pointer: fine) {
-  .level:hover {
+  .row:hover {
     background: var(--peer);
   }
 }
