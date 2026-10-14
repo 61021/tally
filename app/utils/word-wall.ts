@@ -48,7 +48,7 @@ export function layoutWall(texts: readonly string[], measure: (text: string) => 
     }
     let x = (layout.width - rowWidth) / 2
     for (const text of row) {
-      words.push({ text, x, y, width: widthOf(text), alpha: 0.035 + random() * 0.05 })
+      words.push({ text, x, y, width: widthOf(text), alpha: 0.07 + random() * 0.07 })
       x += widthOf(text) + layout.gap
     }
   }

@@ -18,7 +18,7 @@ describe('layoutWall', () => {
   })
 
   it('keeps every word faint', () => {
-    expect(words.every(w => w.alpha >= 0.035 && w.alpha <= 0.085)).toBe(true)
+    expect(words.every(w => w.alpha >= 0.07 && w.alpha <= 0.14)).toBe(true)
   })
 
   it('lays out the same way from the same seed', () => {

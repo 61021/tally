@@ -30,8 +30,8 @@ const PREVIEW = '530070000600195000098000060800060003400803001700020006060000280
 /** Every country Atlas asks about, lit up wherever the mouse passes. */
 const WALL = COUNTRIES.map(c => c.name)
 
-/** The heading and the top bar's links keep clear of the wall. */
-const CLEAR = ['main h1', 'header nav a']
+/** The heading, the top bar's links and the footer keep clear of the wall. */
+const CLEAR = ['main h1', 'header nav a', 'main footer p']
 
 const { user } = useAccount()
 

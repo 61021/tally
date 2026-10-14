@@ -19,12 +19,15 @@ const MAX_POINTS = 48
 
 // Only for a real mouse: on touch there is no pointer to follow, and a still wall is only noise.
 const enabled = ref(false)
+const wallRef = useTemplateRef<HTMLElement>('wall')
 const baseRef = useTemplateRef<HTMLCanvasElement>('base')
 const glowRef = useTemplateRef<HTMLCanvasElement>('glow')
 
 interface TrailPoint { x: number, y: number, born: number }
 
 let words: WallWord[] = []
+let width = 0
+let height = 0
 let levels = new Float32Array(0)
 let rowHeight = 0
 let font = ''
@@ -58,7 +61,7 @@ function readStyle(): void {
 
 function drawBase(): void {
   const ctx = contextOf(baseRef.value!)
-  ctx.clearRect(0, 0, innerWidth, innerHeight)
+  ctx.clearRect(0, 0, width, height)
   ctx.fillStyle = ink
   for (const word of words) {
     ctx.globalAlpha = word.alpha
@@ -74,19 +77,23 @@ function build(): void {
   if (!base || !lit)
     return
   readStyle()
+  // The whole page, so the light follows the mouse into the margins and gaps between the cards.
+  width = document.documentElement.clientWidth
+  height = Math.max(innerHeight, document.documentElement.scrollHeight)
+  wallRef.value!.style.height = `${height}px`
   for (const canvas of [base, lit]) {
-    canvas.width = Math.round(innerWidth * devicePixelRatio)
-    canvas.height = Math.round(innerHeight * devicePixelRatio)
+    canvas.width = Math.round(width * devicePixelRatio)
+    canvas.height = Math.round(height * devicePixelRatio)
   }
   const ctx = contextOf(base)
   const gap = rowHeight * 0.9
   const room = (props.clear ?? []).flatMap(selector => [...document.querySelectorAll(selector)]).map(el => el.getBoundingClientRect()).filter(r => r.width && r.height).map(r => ({ left: r.left - 14, right: r.right + 14, top: r.top + scrollY - 6, bottom: r.bottom + scrollY + 6 }))
-  words = layoutWall(props.words.map(w => w.toUpperCase()), text => ctx.measureText(text).width, { width: innerWidth, height: innerHeight, rowHeight, gap, seed: 2026 })
+  words = layoutWall(props.words.map(w => w.toUpperCase()), text => ctx.measureText(text).width, { width, height, rowHeight, gap, seed: 2026 })
     .filter(w => !room.some(r => w.x < r.right && w.x + w.width > r.left && w.y < r.bottom && w.y + rowHeight > r.top))
   levels = new Float32Array(words.length)
   trail = []
   drawBase()
-  contextOf(lit).clearRect(0, 0, innerWidth, innerHeight)
+  contextOf(lit).clearRect(0, 0, width, height)
 }
 
 function tick(now: number): void {
@@ -95,7 +102,7 @@ function tick(now: number): void {
   last = now
   trail = trail.filter(p => now - p.born < LIFE_MS)
   const ctx = contextOf(glowRef.value!)
-  ctx.clearRect(0, 0, innerWidth, innerHeight)
+  ctx.clearRect(0, 0, width, height)
   ctx.fillStyle = accent
   let alive = trail.length > 0
   for (let i = 0; i < words.length; i++) {
@@ -154,8 +161,8 @@ function schedule(): void {
   rebuild ??= requestAnimationFrame(build)
 }
 
-onMounted(async () => {
-  if (!matchMedia('(any-hover: hover) and (any-pointer: fine)').matches)
+async function start(): Promise<void> {
+  if (enabled.value)
     return
   const reduced = matchMedia('(prefers-reduced-motion: reduce)')
   calm = reduced.matches
@@ -188,6 +195,23 @@ onMounted(async () => {
   scheme.addEventListener('change', onScheme)
   reduced.addEventListener('change', onReduced)
   cleanups.push(() => observer.disconnect(), () => scheme.removeEventListener('change', onScheme), () => reduced.removeEventListener('change', onReduced))
+}
+
+// Some browsers say a laptop has no fine pointer (a touchscreen beside the trackpad); the first mouse move settles it.
+function onFirstMove(event: PointerEvent): void {
+  if (event.pointerType !== 'mouse')
+    return
+  removeEventListener('pointermove', onFirstMove)
+  start().then(() => onMove(event))
+}
+
+onMounted(() => {
+  if (matchMedia('(any-hover: hover) and (any-pointer: fine)').matches) {
+    start()
+    return
+  }
+  addEventListener('pointermove', onFirstMove, { passive: true })
+  cleanups.push(() => removeEventListener('pointermove', onFirstMove))
 })
 
 onBeforeUnmount(() => {
@@ -201,14 +225,14 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div v-if="enabled" class="wall" aria-hidden="true">
+  <div v-if="enabled" ref="wall" class="wall" aria-hidden="true">
     <canvas ref="base" class="base" />
     <canvas ref="glow" class="lit" />
   </div>
 </template>
 
 <style scoped>
-/* Behind the page at the top of the document, over the painting, fading out before the cards begin. */
+/* Behind the whole page and over the painting; the cards sit on top of it. */
 .wall {
   position: absolute;
   top: 0;
@@ -217,7 +241,11 @@ onBeforeUnmount(() => {
   height: 100vh;
   z-index: -1;
   pointer-events: none;
-  mask-image: linear-gradient(180deg, #000 0, #000 30%, transparent 58%);
+  transition: opacity 400ms ease-out;
+
+  @starting-style {
+    opacity: 0;
+  }
 }
 
 canvas {
@@ -226,9 +254,9 @@ canvas {
   width: 100%;
   height: 100%;
   font-family: var(--font-serif);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 400;
-  line-height: 24px;
+  line-height: 26px;
   letter-spacing: 0.16em;
 }
 
