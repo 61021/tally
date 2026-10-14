@@ -1,4 +1,4 @@
-/* Four scenes, each in light, dark and OLED. Dark grades the painting day-for-night; OLED drops it. */
+/* Four scenes, each in light, dark and OLED. OLED drops the painting. */
 
 /* Dusk */
 :root[data-scene='dusk'] {
@@ -10,7 +10,6 @@
   --on-accent: #2b2615;
   --user: #43668a;
   --error: #c13c36;
-  --scene-night: 0.72;
   color-scheme: light;
 }
 :root[data-scene='dusk'][data-mode='dark'] {
@@ -59,7 +58,6 @@
   --on-accent: #1e2736;
   --user: #4c638e;
   --error: #c13c36;
-  --scene-night: 0.66;
   color-scheme: light;
 }
 :root[data-scene='soria'][data-mode='dark'] {
@@ -108,7 +106,6 @@
   --on-accent: #1a2b1d;
   --user: #3b6c5b;
   --error: #c13c36;
-  --scene-night: 0.68;
   color-scheme: light;
 }
 :root[data-scene='haystacks'][data-mode='dark'] {
@@ -157,7 +154,6 @@
   --on-accent: #152c22;
   --user: #326e51;
   --error: #c13c36;
-  --scene-night: 0.42;
   color-scheme: light;
 }
 :root[data-scene='marsh'][data-mode='dark'] {
