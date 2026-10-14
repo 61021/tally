@@ -22,6 +22,8 @@ interface View { x: number, y: number, w: number, h: number }
 
 // The visible part of the map, written straight to the viewBox: zooming and panning never go through Vue.
 let view: View = { x: 0, y: 0, w: props.map.width, h: props.map.height }
+// The whole region fitted to the element's shape, with land from the map's bounds filling the rest.
+let home: View = view
 let measureFrame: number | undefined
 let tween: number | undefined
 
@@ -29,20 +31,36 @@ let tween: number | undefined
 const unit = ref(1)
 const zoomed = ref(false)
 
+function aspectOf(): number {
+  const svg = svgRef.value
+  return svg && svg.clientWidth && svg.clientHeight ? svg.clientWidth / svg.clientHeight : props.map.width / props.map.height
+}
+
+function fitted(): View {
+  const { width, height } = props.map
+  const aspect = aspectOf()
+  return aspect >= width / height
+    ? { x: (width - height * aspect) / 2, y: 0, w: height * aspect, h: height }
+    : { x: 0, y: (height - width / aspect) / 2, w: width, h: width / aspect }
+}
+
 function measure(): void {
   measureFrame = undefined
   const svg = svgRef.value
   if (!svg)
     return
   unit.value = view.w / Math.max(1, svg.clientWidth)
-  zoomed.value = view.w < props.map.width - 0.5
+  zoomed.value = view.w < home.w - 0.5
 }
 
+/** Keeps a view between the whole region and six times closer, inside the land the map ships, at the screen's shape. */
 function clampView(v: Pick<View, 'x' | 'y' | 'w'>): View {
-  const { width, height } = props.map
-  const w = Math.min(width, Math.max(width / MAX_ZOOM, v.w))
-  const h = (w * height) / width
-  return { w, h, x: Math.min(width - w, Math.max(0, v.x)), y: Math.min(height - h, Math.max(0, v.y)) }
+  const { bounds } = props.map
+  const w = Math.min(home.w, Math.max(home.w / MAX_ZOOM, v.w))
+  const h = w / aspectOf()
+  const clampAxis = (start: number, size: number, min: number, span: number): number =>
+    size >= span ? min + (span - size) / 2 : Math.min(min + span - size, Math.max(min, start))
+  return { w, h, x: clampAxis(v.x, w, bounds.x, bounds.width), y: clampAxis(v.y, h, bounds.y, bounds.height) }
 }
 
 function apply(next: View): void {
@@ -56,8 +74,6 @@ function zoomAt([px, py]: Point, factor: number): void {
   const k = w / view.w
   apply(clampView({ w, x: px - (px - view.x) * k, y: py - (py - view.y) * k }))
 }
-
-const FULL = (): View => ({ x: 0, y: 0, w: props.map.width, h: props.map.height })
 
 /** Eases the view to a target over a quarter second, or jumps there when motion is reduced. */
 function glide(target: View): void {
@@ -77,7 +93,20 @@ function glide(target: View): void {
 }
 
 function fit(): void {
-  glide(FULL())
+  glide(home)
+}
+
+/** A new screen shape: back to the whole region, or the same spot and zoom when zoomed in. */
+function refit(): void {
+  const wasZoomed = zoomed.value
+  const ratio = view.w / home.w
+  const centre: Point = [view.x + view.w / 2, view.y + view.h / 2]
+  home = fitted()
+  if (!wasZoomed)
+    return apply(home)
+  const w = home.w * ratio
+  const h = w / aspectOf()
+  apply(clampView({ w, x: centre[0] - w / 2, y: centre[1] - h / 2 }))
 }
 
 function toMap(clientX: number, clientY: number): Point | null {
@@ -91,7 +120,7 @@ function toMap(clientX: number, clientY: number): Point | null {
 let observer: ResizeObserver | undefined
 
 onMounted(() => {
-  observer = new ResizeObserver(() => measure())
+  observer = new ResizeObserver(() => refit())
   observer.observe(svgRef.value!)
 })
 
@@ -237,9 +266,10 @@ function onKey(event: KeyboardEvent): void {
   if (arrow) {
     event.preventDefault()
     const step = KEY_STEP * unit.value * (event.shiftKey ? 5 : 1)
+    const { bounds } = props.map
     const next: Point = [
-      Math.min(props.map.width, Math.max(0, centre[0] + arrow[0] * step)),
-      Math.min(props.map.height, Math.max(0, centre[1] + arrow[1] * step)),
+      Math.min(bounds.x + bounds.width, Math.max(bounds.x, centre[0] + arrow[0] * step)),
+      Math.min(bounds.y + bounds.height, Math.max(bounds.y, centre[1] + arrow[1] * step)),
     ]
     cursor.value = next
     // The view follows a marker that walks off its edge.
@@ -291,13 +321,17 @@ function onKey(event: KeyboardEvent): void {
   position: relative;
 }
 
+.wrap,
+.atlas {
+  width: 100%;
+  height: 100%;
+}
+
 .atlas {
   --land: color-mix(in oklab, var(--ink) 14%, var(--surface));
   --border: color-mix(in oklab, var(--ink) 34%, var(--surface));
   --asked: color-mix(in oklab, var(--accent) 40%, var(--land));
   display: block;
-  width: 100%;
-  height: auto;
   touch-action: none;
   -webkit-user-select: none;
   user-select: none;
@@ -363,8 +397,8 @@ circle {
 
 .fit {
   position: absolute;
-  top: 12px;
-  left: 12px;
+  right: 16px;
+  bottom: 16px;
   display: grid;
   place-items: center;
   width: 40px;

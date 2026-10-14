@@ -148,6 +148,12 @@ onUnmounted(() => removeEventListener('keydown', onKey))
   min-height: calc(100dvh - 2.5rem);
 }
 
+@media (min-width: 1024px) {
+  .atlas-play {
+    min-height: 0;
+  }
+}
+
 .board {
   position: relative;
   display: flex;
@@ -244,27 +250,42 @@ onUnmounted(() => removeEventListener('keydown', onKey))
   border-top: 1px solid var(--line);
 }
 
-/* On a laptop the map takes all the room the rail leaves, with the question in a strip across its top. */
+/* On a laptop the map is the whole window: the question floats over its top and the rail over its left edge. */
 @media (min-width: 1024px) {
-  .atlas-play {
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    min-height: 0;
+  .board {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
   }
 
-  .board {
-    width: min(100%, calc((100dvh - 4rem - 74px) * var(--aspect)));
+  .map {
+    flex: 1;
+    min-height: 0;
+    aspect-ratio: auto;
+  }
+
+  .map:has(:focus-visible) {
+    outline-offset: -4px;
   }
 
   .strip {
-    grid-template-columns: minmax(150px, 1fr) auto minmax(150px, 1fr);
-    order: 0;
+    position: absolute;
+    z-index: 2;
+    top: 16px;
+    left: 50%;
+    width: min(940px, calc(100vw - 176px));
+    grid-template-columns: minmax(140px, 1fr) auto minmax(140px, 1fr);
     gap: 24px;
-    min-height: 74px;
-    padding: 12px 22px;
-    border-top: 0;
-    border-bottom: 1px solid var(--line);
+    min-height: 72px;
+    padding: 12px 14px 12px 22px;
+    translate: -50% 0;
+    background: var(--surface);
+    border: 1px solid var(--ui-border);
+    border-radius: 12px;
+    box-shadow: var(--cel-shadow);
   }
 
   .ask {
@@ -283,17 +304,17 @@ onUnmounted(() => removeEventListener('keydown', onKey))
     line-height: 1;
   }
 
-  /* The round's results lie over the map's corner, so every pin stays in view beside them. */
+  /* The round's results lie over the map's right side, so every pin stays in view beside them. */
   .result {
     position: absolute;
-    z-index: 1;
-    top: 90px;
-    right: 16px;
-    max-height: calc(100% - 106px);
+    z-index: 2;
+    top: 104px;
+    right: 24px;
+    max-height: calc(100% - 128px);
     width: 320px;
     overflow-y: auto;
     border: 1px solid var(--ui-border);
-    border-radius: 10px;
+    border-radius: 12px;
     box-shadow: var(--cel-shadow);
   }
 }

@@ -11,7 +11,7 @@ const TOOLTIP = { side: 'right', sideOffset: 6 } as const
 </script>
 
 <template>
-  <header class="sticky top-0 h-dvh w-16 shrink-0 flex-col items-center py-6">
+  <header class="pointer-events-none sticky top-0 z-10 h-dvh w-16 shrink-0 flex-col items-center py-6 *:pointer-events-auto">
     <NuxtLink to="/" aria-label="Tally, home" class="rounded-md">
       <TallyWordmark :size="19" />
     </NuxtLink>
