@@ -23,12 +23,14 @@ const WIDTH = 1000
 const TOLERANCE = 0.25
 /** Islands smaller than this, in SVG units, are dropped unless they are a whole country. */
 const MIN_ISLAND = 0.6
-/** Land beyond the region only frames it, so it's drawn coarser and keeps fewer islands. */
-const FAR_TOLERANCE = 0.9
-const FAR_MIN_ISLAND = 2.5
-/** The widest and narrowest laptop screens the map fills: it ships land enough around the region for both. */
+/** Land nobody is asked about, inside the region (Greenland beside the Americas), needs less detail than a country. */
+const CONTEXT_TOLERANCE = 0.6
+/** Land beyond the region only frames it: coarser the farther out it lies, with fewer islands. */
+const FAR_TOLERANCE = 1
+const FAR_MIN_ISLAND = 4
+/** The widest laptop and the narrowest phone the map fills: it ships land enough around the region for both. */
 const WIDEST_SCREEN = 2.4
-const NARROWEST_SCREEN = 1.3
+const NARROWEST_SCREEN = 0.45
 /** A country smaller than this, in SVG units, gets a ring when it's revealed. */
 const TINY = 3
 
@@ -87,7 +89,7 @@ function covers(polygons: Polygon[], place: LonLat): boolean {
 function readFeatures(countries: GeoJson, disputed: GeoJson): Feature[] {
   const byId = new Map<string, Polygon[]>()
   for (const { properties: p, geometry } of countries.features) {
-    if (p.FCLASS_SA === 'Unrecognized' || p.ADM0_A3 === 'ATA')
+    if (p.FCLASS_SA === 'Unrecognized')
       continue
     const adm = String(p.ADM0_A3)
     const iso = String(p.ISO_A3_EH)
@@ -173,6 +175,17 @@ function size(ring: Point[]): number {
 
 const within = ([x, y]: Point, box: Box): boolean => x > box.x && x < box.x + box.width && y > box.y && y < box.y + box.height
 
+/** How far a ring's closest point lies outside a box, in SVG units. */
+function distanceTo(ring: Point[], box: Box): number {
+  let best = Number.POSITIVE_INFINITY
+  for (const [x, y] of ring) {
+    const dx = Math.max(box.x - x, 0, x - (box.x + box.width))
+    const dy = Math.max(box.y - y, 0, y - (box.y + box.height))
+    best = Math.min(best, Math.hypot(dx, dy))
+  }
+  return best
+}
+
 /** The region plus what a wider or taller screen shows around it, and a little more for panning. */
 function boundsFor(height: number): Box {
   const aspect = WIDTH / height
@@ -207,7 +220,7 @@ function encode(rings: Point[][], close = true): string {
 }
 
 /** Projects a feature's rings and keeps those in view; small islands go unless they are all the country has. */
-function drawFeature(feature: Feature, frame: Frame, bounds: Box, core: Box): Point[][] {
+function drawFeature(feature: Feature, frame: Frame, bounds: Box, core: Box, asked: boolean): Point[][] {
   const rings: Point[][] = []
   let largest: Point[] | null = null
   for (const polygon of feature.polygons) {
@@ -216,10 +229,11 @@ function drawFeature(feature: Feature, frame: Frame, bounds: Box, core: Box): Po
       if (projected.includes(null) || !(projected as Point[]).some(p => within(p, bounds)))
         continue
       const near = (projected as Point[]).some(p => within(p, core))
-      const points = simplify(projected as Point[], near ? TOLERANCE : FAR_TOLERANCE)
+      const away = near ? 0 : distanceTo(projected as Point[], core) / WIDTH
+      const points = simplify(projected as Point[], near ? (asked ? TOLERANCE : CONTEXT_TOLERANCE) : FAR_TOLERANCE * (1 + 4 * away))
       if (i === 0 && (!largest || size(points) > size(largest)))
         largest = points
-      if (size(points) >= (near ? MIN_ISLAND : FAR_MIN_ISLAND))
+      if (size(points) >= (near ? MIN_ISLAND : FAR_MIN_ISLAND * (1 + 4 * away)))
         rings.push(points)
     }
   }
@@ -263,7 +277,7 @@ function buildMap(region: Region, features: Feature[]): AtlasMap {
   const countries: MapCountry[] = []
   const land: Point[][] = []
   for (const feature of features) {
-    const rings = drawFeature(feature, frame, bounds, core)
+    const rings = drawFeature(feature, frame, bounds, core, asked.has(feature.id))
     if (!rings.length) {
       if (asked.has(feature.id))
         throw new Error(`${feature.id} is asked in ${region} but not on its map`)
