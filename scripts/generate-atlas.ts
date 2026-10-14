@@ -20,9 +20,9 @@ const OUT = 'public/atlas'
 /** Every map is this wide in SVG units; its height follows the region's shape. */
 const WIDTH = 1000
 /** Douglas-Peucker tolerance in SVG units: well under a pixel at the sizes the maps are drawn. */
-const TOLERANCE = 0.45
+const TOLERANCE = 0.25
 /** Islands smaller than this, in SVG units, are dropped unless they are a whole country. */
-const MIN_ISLAND = 1
+const MIN_ISLAND = 0.6
 /** A country smaller than this, in SVG units, gets a ring when it's revealed. */
 const TINY = 3
 
