@@ -11,6 +11,7 @@ import AtlasResult from '../../components/atlas/AtlasResult.vue'
 import AtlasScore from '../../components/atlas/AtlasScore.vue'
 import AtlasShortcuts from '../../components/atlas/AtlasShortcuts.vue'
 import { useAtlasGame } from '../../composables/useAtlasGame'
+import { ASPECTS } from '../../constants/atlas'
 import { formatKm, formatPoints } from '../../utils/atlas-format'
 import { loadAtlasMap } from '../../utils/atlas-maps'
 
@@ -47,7 +48,7 @@ const mapLabel = computed(() => country.value && phase.value === 'aim'
   ? `Map of ${name}. Click where ${country.value.name} is, or move the marker with the arrow keys and press Enter.`
   : `Map of ${name}.`)
 
-const aspect = computed(() => (map.value ? map.value.width / map.value.height : 2))
+const aspect = computed(() => (map.value ? map.value.width / map.value.height : ASPECTS[region]))
 
 function onKey(event: KeyboardEvent): void {
   if (status.value !== 'ready' || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey)
@@ -70,7 +71,7 @@ onUnmounted(() => removeEventListener('keydown', onKey))
 </script>
 
 <template>
-  <main class="mx-auto flex min-h-[calc(100dvh-2.5rem)] max-w-md flex-col md:max-w-xl lg:min-h-0 lg:max-w-none">
+  <main class="atlas-play">
     <header class="mb-4 grid grid-cols-[40px_1fr_auto_40px] items-center lg:hidden">
       <NuxtLink to="/" class="grid size-10 place-items-center" aria-label="Back to Tally">
         <UIcon name="i-ph-caret-left" class="size-5.5" />
@@ -85,99 +86,215 @@ onUnmounted(() => removeEventListener('keydown', onKey))
       </NuxtLink>
     </header>
 
-    <div class="play lg:flex lg:items-start lg:justify-center lg:gap-12" :style="{ '--aspect': aspect }">
-      <div class="map-col w-full">
-        <div v-if="status === 'ready' && map && round" class="frame cel overflow-hidden rounded-[10px] border border-default bg-surface">
-          <AtlasMap :map="map" :round="round" :phase="phase" :label="mapLabel" @pin="pin" />
-        </div>
-        <div v-else-if="status === 'loading'" class="frame cel w-full animate-pulse rounded-[10px] border border-default bg-surface" aria-label="Loading the map" />
-      </div>
+    <div class="board cel" :style="{ '--aspect': aspect }">
+      <div class="strip">
+        <h1 class="where hidden lg:block">
+          {{ name }}
+          <span>{{ position }}</span>
+        </h1>
 
-      <aside class="cel mt-3 w-full rounded-[10px] border border-default bg-surface p-4 lg:mt-0 lg:w-[392px] lg:shrink-0 lg:px-6.5 lg:pt-6.5 lg:pb-5.5">
-        <div class="mb-2 hidden items-end justify-between lg:flex">
-          <h1 class="text-[34px] leading-none font-normal tracking-[-0.015em]">
-            {{ name }}
-            <span class="mt-2 block font-sans text-[15px] tracking-normal text-muted">{{ position }}</span>
-          </h1>
-          <AtlasScore v-if="phase !== 'done'" class="text-[28px] leading-none font-light" :value="score" />
-        </div>
-
-        <template v-if="status === 'ready' && round">
-          <AtlasResult v-if="phase === 'done'" :round="round" :score="score" :best="best" :new-best="newBest" @again="playAgain" />
-          <template v-else>
-            <section class="ask" aria-live="polite">
-              <p class="font-serif text-[17px] text-muted">
-                Where is
+        <div class="ask" aria-live="polite">
+          <template v-if="status === 'ready' && round">
+            <template v-if="phase === 'done'">
+              <p class="title">
+                {{ newBest ? 'A new best.' : 'Round over.' }}
+              </p>
+            </template>
+            <template v-else>
+              <p class="lead">
+                {{ phase === 'aim' ? 'Where is' : result && result.km === 0 ? 'You found' : `${formatKm(result?.km ?? 0)} from` }}
               </p>
               <p class="name">
                 {{ country?.name }}
               </p>
-            </section>
-
-            <div class="outcome" aria-live="polite">
-              <template v-if="result">
-                <p class="flex items-baseline justify-between gap-3">
-                  <span class="text-[17px]">{{ result.km === 0 ? 'Spot on' : `${formatKm(result.km)} away` }}</span>
-                  <span class="font-mono text-[17px]" :class="result.points === MAX_POINTS ? 'text-user' : 'text-muted'">+{{ formatPoints(result.points) }}</span>
-                </p>
-                <UButton size="xl" block class="mt-4 font-sans text-[17px]" aria-keyshortcuts="Enter" @click="next">
-                  {{ round.pins.length === round.targets.length ? 'See the score' : 'Next country' }}
-                </UButton>
-              </template>
-            </div>
-            <AtlasShortcuts v-model:open="shortcutsOpen" />
+            </template>
           </template>
-        </template>
-
-        <section v-else-if="status === 'error'" class="grid gap-4 pt-8 lg:pt-4">
-          <p class="font-serif text-[17px]">
+          <p v-else-if="status === 'error'" class="font-serif text-[17px]">
             The map didn't load. Check your connection and try again.
           </p>
-          <UButton size="xl" block class="font-sans text-[17px]" @click="retry">
+        </div>
+
+        <div class="act">
+          <template v-if="status === 'ready' && round">
+            <span v-if="result" class="gain" :class="{ full: result.points === MAX_POINTS }">+{{ formatPoints(result.points) }}</span>
+            <AtlasScore class="total hidden lg:inline" :value="score" />
+            <UButton v-if="phase === 'reveal'" size="lg" class="font-sans text-[16px]" aria-keyshortcuts="Enter" @click="next">
+              {{ round.pins.length === round.targets.length ? 'See the score' : 'Next country' }}
+            </UButton>
+            <UButton v-else-if="phase === 'done'" size="lg" class="font-sans text-[16px]" @click="playAgain">
+              Play again
+            </UButton>
+            <AtlasShortcuts v-else v-model:open="shortcutsOpen" />
+          </template>
+          <UButton v-else-if="status === 'error'" size="lg" class="font-sans text-[16px]" @click="retry">
             Try again
           </UButton>
-          <UButton to="/" size="xl" block variant="outline" color="neutral" class="font-sans text-[17px]">
-            Back to Tally
-          </UButton>
-        </section>
-      </aside>
+        </div>
+      </div>
+
+      <div class="map">
+        <AtlasMap v-if="status === 'ready' && map && round" :map="map" :round="round" :phase="phase" :label="mapLabel" @pin="pin" />
+        <div v-else-if="status === 'loading'" class="size-full animate-pulse bg-[var(--peer)]" aria-label="Loading the map" />
+      </div>
+      <AtlasResult v-if="status === 'ready' && round && phase === 'done'" class="result" :round="round" :best="best" :new-best="newBest" />
     </div>
   </main>
 </template>
 
 <style scoped>
-.frame {
-  aspect-ratio: var(--aspect);
+.atlas-play {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100dvh - 2.5rem);
 }
 
-.frame:has(:focus-visible) {
-  outline: 2px solid var(--user);
-  outline-offset: 2px;
+.board {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--ui-border);
+  border-radius: 10px;
+}
+
+.strip {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  order: 2;
+  min-height: 72px;
+  padding: 14px 16px;
+  border-top: 1px solid var(--line);
+}
+
+.where {
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+.where span {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  letter-spacing: 0;
+  color: var(--muted);
 }
 
 .ask {
-  padding-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  min-width: 0;
 }
 
-.name {
-  margin-top: 2px;
+.lead {
   font-family: var(--font-serif);
-  font-size: 34px;
+  font-size: 17px;
+  color: var(--muted);
+}
+
+.name,
+.title {
+  font-family: var(--font-serif);
+  font-size: 26px;
   line-height: 1.15;
   letter-spacing: -0.015em;
-  text-wrap: balance;
 }
 
-.outcome {
-  min-height: 108px;
-  padding-top: 18px;
+.title {
+  font-style: italic;
 }
 
-/* Beside the rail the map takes the full height, or the width the 64px rail and 392px panel leave (568px with padding and gap). */
+.act {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+}
+
+.gain {
+  font-family: var(--font-mono);
+  font-size: 17px;
+  color: var(--muted);
+}
+
+.gain.full {
+  color: var(--user);
+}
+
+.map {
+  position: relative;
+  order: 1;
+  aspect-ratio: var(--aspect);
+}
+
+.map:has(:focus-visible) {
+  outline: 2px solid var(--user);
+  outline-offset: -2px;
+}
+
+.result {
+  order: 3;
+  border-top: 1px solid var(--line);
+}
+
+/* On a laptop the map takes all the room the rail leaves, with the question in a strip across its top. */
 @media (min-width: 1024px) {
-  .map-col {
-    width: clamp(420px, min((100dvh - 4rem) * var(--aspect), 100vw - 568px), 1600px);
-    flex: none;
+  .atlas-play {
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 0;
+  }
+
+  .board {
+    width: min(100%, calc((100dvh - 4rem - 74px) * var(--aspect)));
+  }
+
+  .strip {
+    grid-template-columns: minmax(150px, 1fr) auto minmax(150px, 1fr);
+    order: 0;
+    gap: 24px;
+    min-height: 74px;
+    padding: 12px 22px;
+    border-top: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .ask {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .name,
+  .title {
+    font-size: 30px;
+  }
+
+  .total {
+    font-size: 26px;
+    font-weight: 300;
+    line-height: 1;
+  }
+
+  /* The round's results lie over the map's corner, so every pin stays in view beside them. */
+  .result {
+    position: absolute;
+    z-index: 1;
+    top: 90px;
+    right: 16px;
+    max-height: calc(100% - 106px);
+    width: 320px;
+    overflow-y: auto;
+    border: 1px solid var(--ui-border);
+    border-radius: 10px;
+    box-shadow: var(--cel-shadow);
   }
 }
 </style>

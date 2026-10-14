@@ -9,6 +9,8 @@ const ROWS = [
   { label: 'Move the marker', keys: ['arrowleft', 'arrowup', 'arrowright', 'arrowdown'] },
   { label: 'Move it further', keys: ['shift', 'arrowright'] },
   { label: 'Drop the pin', keys: ['enter'] },
+  { label: 'Zoom in or out', keys: ['+', '-'] },
+  { label: 'Whole map', keys: ['0'] },
   { label: 'Next country', keys: ['enter'] },
   { label: 'Show this list', keys: ['?'] },
 ]
@@ -16,15 +18,14 @@ const ROWS = [
 
 <template>
   <UModal v-model:open="open" title="Keyboard shortcuts" :ui="{ content: 'max-w-md' }">
-    <button type="button" class="trigger mt-5 items-center gap-2 rounded-lg py-1.5 text-[14px] text-muted">
-      <UIcon name="i-ph-keyboard" class="size-4.5" />
-      Keyboard shortcuts
+    <button type="button" class="trigger items-center gap-2 rounded-lg px-2 py-1.5 text-[14px] text-muted" aria-label="Keyboard shortcuts">
+      <UIcon name="i-ph-keyboard" class="size-5" />
       <UKbd value="?" />
     </button>
 
     <template #body>
       <p class="mb-4 font-serif text-[15px] text-muted">
-        Tab to the map first, then aim with the arrows.
+        Tab to the map first, then aim with the arrows. With a mouse, scroll to zoom and drag to move around.
       </p>
       <dl class="grid gap-2.5">
         <div v-for="row in ROWS" :key="row.label" class="flex items-center justify-between gap-4 text-[15px]">

@@ -1,20 +1,15 @@
 <script setup lang="ts">
 import type { AtlasRound } from '#shared/atlas/types'
-import UButton from '@nuxt/ui/components/Button.vue'
 import { computed } from 'vue'
 import { MAX_POINTS } from '#shared/atlas/constants'
 import { COUNTRY_BY_ID } from '#shared/atlas/countries'
 import { formatKm, formatPoints } from '../../utils/atlas-format'
-import AtlasScore from './AtlasScore.vue'
 
 const props = defineProps<{
   round: AtlasRound
-  score: number
   best: number | null
   newBest: boolean
 }>()
-
-const emit = defineEmits<{ again: [] }>()
 
 const rows = computed(() => props.round.pins.map((pin, i) => ({
   name: COUNTRY_BY_ID.get(props.round.targets[i]!)?.name ?? '',
@@ -30,13 +25,7 @@ const summary = computed(() => {
 </script>
 
 <template>
-  <section class="result" aria-live="polite">
-    <h2 class="title">
-      {{ newBest ? 'A new best.' : 'Round over.' }}
-    </h2>
-    <p class="score">
-      <AtlasScore :value="score" />
-    </p>
+  <section class="result">
     <p class="summary">
       {{ summary }}
     </p>
@@ -44,56 +33,30 @@ const summary = computed(() => {
       <li v-for="row in rows" :key="row.name">
         <span class="name">{{ row.name }}</span>
         <span class="km">{{ row.km === 0 ? 'inside' : formatKm(row.km) }}</span>
-        <span class="points">{{ formatPoints(row.points) }}</span>
+        <span class="points" :class="{ full: row.points === MAX_POINTS }">{{ formatPoints(row.points) }}</span>
       </li>
     </ol>
-    <div class="actions">
-      <UButton size="xl" block class="font-sans text-[17px]" @click="emit('again')">
-        Play again
-      </UButton>
-      <UButton to="/" size="xl" block variant="outline" color="neutral" class="font-sans text-[17px]">
-        Back to Tally
-      </UButton>
-    </div>
   </section>
 </template>
 
 <style scoped>
 .result {
-  padding-top: 18px;
-}
-
-.title {
-  margin: 0;
-  font-size: 40px;
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-}
-
-.score {
-  margin: 8px 0 10px;
-  font-family: var(--font-mono);
-  font-size: 48px;
-  font-weight: 300;
-  line-height: 1;
-  letter-spacing: -0.03em;
-  color: var(--user);
+  padding: 14px 18px 12px;
+  background: var(--surface);
 }
 
 .summary {
-  margin: 0 0 14px;
-  font-size: 15px;
+  margin: 0 0 8px;
+  font-size: 14px;
   color: var(--muted);
 }
 
 .list {
   display: grid;
-  margin: 0 0 20px;
+  margin: 0;
   padding: 0;
   list-style: none;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .list li {
@@ -101,7 +64,7 @@ const summary = computed(() => {
   grid-template-columns: minmax(0, 1fr) auto 3.25rem;
   gap: 12px;
   align-items: baseline;
-  padding: 3px 0;
+  padding: 4px 0;
 }
 
 .name {
@@ -121,8 +84,7 @@ const summary = computed(() => {
   color: var(--muted);
 }
 
-.actions {
-  display: grid;
-  gap: 10px;
+.points.full {
+  color: var(--user);
 }
 </style>
