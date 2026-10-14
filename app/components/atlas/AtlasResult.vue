@@ -42,7 +42,6 @@ const summary = computed(() => {
 <style scoped>
 .result {
   padding: 14px 18px 12px;
-  background: var(--surface);
 }
 
 .summary {

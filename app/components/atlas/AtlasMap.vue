@@ -397,8 +397,9 @@ circle {
 
 .fit {
   position: absolute;
+  top: var(--fit-top, auto);
   right: 16px;
-  bottom: 16px;
+  bottom: var(--fit-bottom, 16px);
   display: grid;
   place-items: center;
   width: 40px;
