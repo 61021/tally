@@ -21,7 +21,8 @@ const MAX_POINTS = 48
 const enabled = ref(false)
 const wallRef = useTemplateRef<HTMLElement>('wall')
 const baseRef = useTemplateRef<HTMLCanvasElement>('base')
-const glowRef = useTemplateRef<HTMLCanvasElement>('glow')
+// Never name a template ref after a script binding: production binds the ref to it (here the glow() import) and it stays null.
+const litRef = useTemplateRef<HTMLCanvasElement>('lit')
 
 interface TrailPoint { x: number, y: number, born: number }
 
@@ -56,7 +57,7 @@ function readStyle(): void {
   spacing = css.letterSpacing === 'normal' ? '0px' : css.letterSpacing
   rowHeight = Number.parseFloat(css.lineHeight) || Number.parseFloat(css.fontSize) * 2
   ink = css.color
-  accent = getComputedStyle(glowRef.value!).color
+  accent = getComputedStyle(litRef.value!).color
 }
 
 function drawBase(): void {
@@ -73,7 +74,7 @@ function drawBase(): void {
 function build(): void {
   rebuild = undefined
   const base = baseRef.value
-  const lit = glowRef.value
+  const lit = litRef.value
   if (!base || !lit)
     return
   readStyle()
@@ -101,7 +102,7 @@ function tick(now: number): void {
   const dt = Math.min(64, now - (last || now - 16))
   last = now
   trail = trail.filter(p => now - p.born < LIFE_MS)
-  const ctx = contextOf(glowRef.value!)
+  const ctx = contextOf(litRef.value!)
   ctx.clearRect(0, 0, width, height)
   ctx.fillStyle = accent
   let alive = trail.length > 0
@@ -227,7 +228,7 @@ onBeforeUnmount(() => {
 <template>
   <div v-if="enabled" ref="wall" class="wall" aria-hidden="true">
     <canvas ref="base" class="base" />
-    <canvas ref="glow" class="lit" />
+    <canvas ref="lit" class="lit" />
   </div>
 </template>
 
