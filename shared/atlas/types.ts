@@ -36,11 +36,22 @@ export interface MapCountry {
   tiny: boolean
 }
 
+/** A rectangle in a map's own SVG units. */
+export interface Box {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
 /** One region's map, as `scripts/generate-atlas.ts` writes it to `public/atlas/<region>.json`. */
 export interface AtlasMap {
   region: Region
+  /** The region itself spans 0,0 to width,height; it is what the map fits to a screen. */
   width: number
   height: number
+  /** How far the drawn land reaches around the region, so a screen of another shape fills edge to edge. */
+  bounds: Box
   frame: Frame
   /** Every country this region asks about. */
   countries: MapCountry[]

@@ -1,4 +1,4 @@
-import type { AtlasMap, Frame, LonLat, MapCountry, Point, Projection, Region } from '../shared/atlas/types.ts'
+import type { AtlasMap, Box, Frame, LonLat, MapCountry, Point, Projection, Region } from '../shared/atlas/types.ts'
 import { Buffer } from 'node:buffer'
 import { existsSync } from 'node:fs'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
@@ -23,6 +23,12 @@ const WIDTH = 1000
 const TOLERANCE = 0.25
 /** Islands smaller than this, in SVG units, are dropped unless they are a whole country. */
 const MIN_ISLAND = 0.6
+/** Land beyond the region only frames it, so it's drawn coarser and keeps fewer islands. */
+const FAR_TOLERANCE = 0.9
+const FAR_MIN_ISLAND = 2.5
+/** The widest and narrowest laptop screens the map fills: it ships land enough around the region for both. */
+const WIDEST_SCREEN = 2.4
+const NARROWEST_SCREEN = 1.3
 /** A country smaller than this, in SVG units, gets a ring when it's revealed. */
 const TINY = 3
 
@@ -165,9 +171,14 @@ function size(ring: Point[]): number {
   return Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys))
 }
 
-function overlaps(ring: Point[], width: number, height: number): boolean {
-  const margin = width * 0.05
-  return ring.some(([x, y]) => x > -margin && x < width + margin && y > -margin && y < height + margin)
+const within = ([x, y]: Point, box: Box): boolean => x > box.x && x < box.x + box.width && y > box.y && y < box.y + box.height
+
+/** The region plus what a wider or taller screen shows around it, and a little more for panning. */
+function boundsFor(height: number): Box {
+  const aspect = WIDTH / height
+  const side = Math.max(0, (WIDEST_SCREEN / aspect - 1) / 2) + 0.05
+  const top = Math.max(0, (aspect / NARROWEST_SCREEN - 1) / 2) + 0.05
+  return { x: -side * WIDTH, y: -top * height, width: WIDTH * (1 + 2 * side), height: height * (1 + 2 * top) }
 }
 
 const num = (n: number): string => String(Math.round(n * 10) / 10 || 0)
@@ -196,20 +207,19 @@ function encode(rings: Point[][], close = true): string {
 }
 
 /** Projects a feature's rings and keeps those in view; small islands go unless they are all the country has. */
-function drawFeature(feature: Feature, frame: Frame, width: number, height: number): Point[][] {
+function drawFeature(feature: Feature, frame: Frame, bounds: Box, core: Box): Point[][] {
   const rings: Point[][] = []
   let largest: Point[] | null = null
   for (const polygon of feature.polygons) {
     for (const [i, ring] of polygon.entries()) {
       const projected = ring.map(place => toMapPoint(frame, place))
-      if (projected.includes(null))
+      if (projected.includes(null) || !(projected as Point[]).some(p => within(p, bounds)))
         continue
-      const points = simplify(projected as Point[], TOLERANCE)
-      if (!overlaps(points, width, height))
-        continue
+      const near = (projected as Point[]).some(p => within(p, core))
+      const points = simplify(projected as Point[], near ? TOLERANCE : FAR_TOLERANCE)
       if (i === 0 && (!largest || size(points) > size(largest)))
         largest = points
-      if (size(points) >= MIN_ISLAND)
+      if (size(points) >= (near ? MIN_ISLAND : FAR_MIN_ISLAND))
         rings.push(points)
     }
   }
@@ -218,14 +228,13 @@ function drawFeature(feature: Feature, frame: Frame, width: number, height: numb
   return rings
 }
 
-function graticule(frame: Frame, spec: RegionSpec, width: number, height: number): string {
+function graticule(frame: Frame, bounds: Box): string {
   const lines: Point[][] = []
   const trace = (places: LonLat[]): void => {
     let line: Point[] = []
     for (const place of places) {
       const p = toMapPoint(frame, place)
-      const inView = p && p[0] >= -20 && p[0] <= width + 20 && p[1] >= -20 && p[1] <= height + 20
-      if (inView) {
+      if (p && within(p, bounds)) {
         line.push(p)
       }
       else {
@@ -237,7 +246,7 @@ function graticule(frame: Frame, spec: RegionSpec, width: number, height: number
     if (line.length > 1)
       lines.push(line)
   }
-  const [south, north] = spec.projection.kind === 'equal-earth' ? [-60, 80] : [-80, 85]
+  const [south, north] = [-85, 85]
   for (let lon = -180; lon < 180; lon += 15)
     trace(Array.from({ length: north - south + 1 }, (_, i): LonLat => [lon, south + i]))
   for (let lat = -75; lat <= 75; lat += 15)
@@ -248,11 +257,13 @@ function graticule(frame: Frame, spec: RegionSpec, width: number, height: number
 function buildMap(region: Region, features: Feature[]): AtlasMap {
   const spec = SPECS[region]
   const { frame, height } = frameFor(spec)
+  const bounds = boundsFor(height)
+  const core: Box = { x: -0.05 * WIDTH, y: -0.05 * height, width: 1.1 * WIDTH, height: 1.1 * height }
   const asked = new Set(COUNTRIES.filter(c => region === 'world' || c.continent === region).map(c => c.id))
   const countries: MapCountry[] = []
   const land: Point[][] = []
   for (const feature of features) {
-    const rings = drawFeature(feature, frame, WIDTH, height)
+    const rings = drawFeature(feature, frame, bounds, core)
     if (!rings.length) {
       if (asked.has(feature.id))
         throw new Error(`${feature.id} is asked in ${region} but not on its map`)
@@ -269,10 +280,11 @@ function buildMap(region: Region, features: Feature[]): AtlasMap {
     region,
     width: WIDTH,
     height,
+    bounds: { x: round(bounds.x), y: round(bounds.y), width: round(bounds.width), height: round(bounds.height) },
     frame: { ...frame, scale: round(frame.scale), dx: round(frame.dx), dy: round(frame.dy) },
     countries,
     land: encode(land),
-    graticule: graticule(frame, spec, WIDTH, height),
+    graticule: graticule(frame, bounds),
   }
 }
 
